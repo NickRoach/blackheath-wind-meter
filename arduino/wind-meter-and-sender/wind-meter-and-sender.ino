@@ -6,7 +6,8 @@ SoftwareSerial SerialAT(4, 5); // RX, TX
 #define TINY_GSM_RX_BUFFER 650
 #endif
 #define TINY_GSM_YIELD() { delay(2); }
-const char apn[]  = "live.vodafone.com";
+//const char apn[]  = "live.vodafone.com";
+const char apn[]  = "telstra.wap";
 const char gprsUser[] = "";
 const char gprsPass[] = "";
 const char server[] = "nicksipcam.hopto.org";
@@ -39,8 +40,8 @@ void setup() {
   pinMode(speedPin, INPUT_PULLUP);
   pinMode(directionPin, INPUT_PULLUP);
 
-  attachInterrupt(digitalPinToInterrupt(speedPin), updateSpeed, FALLING);
-  attachInterrupt(digitalPinToInterrupt(directionPin), updateDirection, FALLING);
+//  attachInterrupt(digitalPinToInterrupt(speedPin), updateSpeed, FALLING);
+//  attachInterrupt(digitalPinToInterrupt(directionPin), updateDirection, FALLING);
   
   pinMode(SIM_POWER, OUTPUT);
   digitalWrite(SIM_POWER, HIGH);
@@ -57,53 +58,53 @@ void setup() {
   SerialMon.println("Initializing modem...");
 }
 
-void updateSpeed(){
-  //if it has been more than 10 ms since the last trigger
-  if(millis() - speedTime > 10){
-    speedValue = millis() - speedTime;
-    speedTime = millis();
-    setSpeedFlag();
-  }
-}
+//void updateSpeed(){
+//  //if it has been more than 10 ms since the last trigger
+//  if(millis() - speedTime > 10){
+//    speedValue = millis() - speedTime;
+//    speedTime = millis();
+//    setSpeedFlag();
+//  }
+//}
 
-void updateDirection(){
-  if(millis() - directionTime > 10){
-    directionValue = millis() - directionTime;
-    doDirection();
-    directionTime = millis();
-  }
-}
+//void updateDirection(){
+//  if(millis() - directionTime > 10){
+//    directionValue = millis() - directionTime;
+//    doDirection();
+//    directionTime = millis();
+//  }
+//}
 
-void setSpeedFlag(){
-  speedFlag = true;
-}
+//void setSpeedFlag(){
+//  speedFlag = true;
+//}
 
-void doDirection(){
-  if(speedFlag){
-    directionAngle = directionValue/speedValue*360;
-    SerialMon.print("directionAngle: ");
-    SerialMon.println(directionAngle);
-//    SerialMon.print("speedValue: ");
-//    SerialMon.println(speedValue);
+//void doDirection(){
+//  if(speedFlag){
+//    directionAngle = directionValue/speedValue*360;
 //    SerialMon.print("directionAngle: ");
 //    SerialMon.println(directionAngle);
-    averageDirectionAngle = ((averageDirectionAngle *  directionCounter) + directionAngle) / ++directionCounter;
-//    SerialMon.print("directionCounter: ");
-//    SerialMon.println(directionCounter);
-    SerialMon.print("averageDirectionAngle: ");
-    SerialMon.println(averageDirectionAngle);
-    speedFlag = false;
-  }
-}
+////    SerialMon.print("speedValue: ");
+////    SerialMon.println(speedValue);
+////    SerialMon.print("directionAngle: ");
+////    SerialMon.println(directionAngle);
+//    averageDirectionAngle = ((averageDirectionAngle *  directionCounter) + directionAngle) / ++directionCounter;
+////    SerialMon.print("directionCounter: ");
+////    SerialMon.println(directionCounter);
+//    SerialMon.print("averageDirectionAngle: ");
+//    SerialMon.println(averageDirectionAngle);
+//    speedFlag = false;
+//  }
+//}
 
-String makeString(){
-  String a = "{\"fullRotationTime\":";
-  a  = a + 1000;
-  a = a + ",\"averageDirectionAngle\":";
-  a = a + averageDirectionAngle;
-  a = a + "}";
-  return a;
-}
+//String makeString(){
+//  String a = "{\"fullRotationTime\":";
+//  a  = a + 1000;
+//  a = a + ",\"averageDirectionAngle\":";
+//  a = a + averageDirectionAngle;
+//  a = a + "}";
+//  return a;
+//}
 
 String makeHardcodedString(){
   String a = "{\"fullRotationTime\":";
