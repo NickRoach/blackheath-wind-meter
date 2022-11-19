@@ -9,9 +9,9 @@ SoftwareSerial SerialAT(4, 5); // RX, TX
 const char apn[]  = "live.vodafone.com";
 const char gprsUser[] = "";
 const char gprsPass[] = "";
-const char server[] = "210.84.29.215";
+const char server[] = "nicksrouter.ddns.net";
 const char resource[] = "/";
-const int  port = 81;
+const int  port = 69;
 unsigned long timeout;
 
 float speedTime;
