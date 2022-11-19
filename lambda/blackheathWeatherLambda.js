@@ -50,7 +50,7 @@ exports.handler = async (event, context) => {
     const params = {
       Bucket: bucketName,
       Key: key,
-      Body: data,
+      Body: JSON.stringify(data),
       ContentType: "application/json",
     };
     return s3
@@ -58,7 +58,8 @@ exports.handler = async (event, context) => {
         if (err) console.log(err, err.stack); // an error occurred
         else return data; // successful response
       })
-      .promise();
+      .promise()
+      .then(() => data);
   };
 
   try {
