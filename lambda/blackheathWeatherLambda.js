@@ -9,12 +9,31 @@ AWS.config.update({ region: "ap-southeast-2" });
 
 const BUCKET_NAME = "blackheathweatherbucket";
 const BUCKET_KEY = "blackheathdata.json";
+const MAX_DATA_LENGTH = 15;
 
 exports.handler = async (event, context) => {
   let body;
   let statusCode = 200;
   const headers = {
     "Content-Type": "application/json",
+  };
+
+  const listObjectsInS3 = async (bucketName) => {
+    const s3 = new AWS.S3();
+    const params = {
+      Bucket: bucketName,
+      MaxKeys: 100,
+    };
+    return s3
+      .listObjects(params, function (err, data) {
+        if (err) console.log(err, err.stack); // an error occurred
+        else {
+          console.log("List");
+          console.log(data);
+        } // successful response
+      })
+      .promise()
+      .then((data) => data.Contents);
   };
 
   const getObjectFromS3 = async (bucketName, key) => {
@@ -27,23 +46,28 @@ exports.handler = async (event, context) => {
       .getObject(params, function (err, data) {
         if (err) console.log(err, err.stack); // an error occurred
         else console.log(data); // successful response
-        /*
-      data = {
-       AcceptRanges: "bytes",
-       ContentLength: 3191,
-       ContentType: "image/jpeg",
-       ETag: "\"6805f2cfc46c0f04559748bb039d69ae\"",
-       LastModified: <Date Representation>,
-       Metadata: {
-       },
-       TagCount: 2,
-       VersionId: "null"
-      }
-      */
       })
       .promise()
       .then((data) => JSON.parse(data.Body.toString("utf-8")));
   };
+
+  function uploadObjectToS3(bucketName, key, data) {
+    const s3 = new AWS.S3();
+    const buf = Buffer.from(JSON.stringify(data));
+    const params = {
+      Bucket: bucketName,
+      Key: key,
+      Body: buf,
+      ContentType: "application/json",
+    };
+    return s3
+      .upload(params, function (err, data) {
+        if (err) console.log(err, err.stack); // an error occurred
+        else console.log(data); // successful response
+      })
+      .promise()
+      .then((data) => data);
+  }
 
   const putObjectToS3 = async (bucketName, key, data) => {
     const s3 = new AWS.S3();
@@ -59,7 +83,52 @@ exports.handler = async (event, context) => {
         else return data; // successful response
       })
       .promise()
-      .then(() => data);
+      .then((data) => data);
+  };
+
+  const getWeatherData = async () => {
+    console.log("Get Weather Data");
+    const list = await listObjectsInS3(BUCKET_NAME);
+    const found = list.find((item) => item.Key === BUCKET_KEY);
+    if (found) {
+      return await getObjectFromS3(BUCKET_NAME, BUCKET_KEY);
+    } else {
+      return "No Data";
+    }
+  };
+
+  const createWeatherData = async (data) => {
+    const newData = {
+      ...data,
+      time: new Date(),
+    };
+    console.log("Incoming data");
+    console.log(data);
+    console.log("New Data");
+    console.log(newData);
+    const currentData = await getWeatherData();
+    console.log("Current Data");
+    console.log(currentData);
+    if (currentData === "No Data") {
+      const newDataArray = [];
+      newDataArray.unshift(newData);
+      return await uploadObjectToS3(BUCKET_NAME, BUCKET_KEY, newDataArray).then(
+        (response) => {
+          return {
+            data: response,
+            length: response.length,
+          };
+        }
+      );
+    } else {
+      const newDataArray = currentData;
+      newDataArray.unshift(newData);
+      if (newDataArray.length > MAX_DATA_LENGTH) {
+        newDataArray.pop();
+      }
+      await putObjectToS3(BUCKET_NAME, BUCKET_KEY, newDataArray);
+      return newData;
+    }
   };
 
   try {
@@ -68,12 +137,10 @@ exports.handler = async (event, context) => {
         body = "Hello";
         break;
       case "GET /blackheath":
-        body = await getObjectFromS3(BUCKET_NAME, BUCKET_KEY);
+        body = await getWeatherData();
         break;
       case "POST /blackheath":
-        body = await putObjectToS3(
-          BUCKET_NAME,
-          BUCKET_KEY,
+        body = await createWeatherData(
           JSON.parse(event.body.toString("utf-8"))
         );
         break;
