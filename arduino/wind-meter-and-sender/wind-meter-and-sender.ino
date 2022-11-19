@@ -6,13 +6,12 @@ SoftwareSerial SerialAT(4, 5); // RX, TX
 #define TINY_GSM_RX_BUFFER 650
 #endif
 #define TINY_GSM_YIELD() { delay(2); }
-//const char apn[]  = "live.vodafone.com";
-const char apn[]  = "telstra.wap";
+const char apn[]  = "live.vodafone.com";
 const char gprsUser[] = "";
 const char gprsPass[] = "";
-const char server[] = "nicksipcam.hopto.org";
-const char resource[] = "/mobile";
-const int  port = 84;
+const char server[] = "210.84.29.215";
+const char resource[] = "/";
+const int  port = 81;
 unsigned long timeout;
 
 float speedTime;
