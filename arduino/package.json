@@ -2,15 +2,17 @@
   "name": "arduino",
   "version": "1.0.0",
   "description": "",
-  "main": "test-server.js",
-  "type": "module",
+  "main": "test-server.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon test-server.js"
+    "start": "nodemon test-server.ts"
   },
   "author": "",
   "license": "ISC",
   "dependencies": {
     "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "typescript": "^4.9.3"
   }
 }
