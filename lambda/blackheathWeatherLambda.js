@@ -9,7 +9,7 @@ AWS.config.update({ region: "ap-southeast-2" });
 
 const BUCKET_NAME = "blackheathweatherbucket";
 const BUCKET_KEY = "blackheathdata.json";
-const MAX_DATA_LENGTH = 15;
+const MAX_DATA_LENGTH = 72;
 
 exports.handler = async (event, context) => {
   let body;
@@ -93,14 +93,16 @@ exports.handler = async (event, context) => {
     if (found) {
       return await getObjectFromS3(BUCKET_NAME, BUCKET_KEY);
     } else {
-      return "No Data";
+      return [];
     }
   };
 
   const createWeatherData = async (data) => {
     const newData = {
       ...data,
-      time: new Date(),
+      time: new Date().toLocaleString(undefined, {
+        timeZone: "Australia/Sydney",
+      }),
     };
     console.log("Incoming data");
     console.log(data);
