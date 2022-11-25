@@ -17,7 +17,7 @@ export const DataTable = () => {
     "time": "2022-11-20T01:30:00.584Z",
   };
   const apiUrl: string =
-    "https://c5qvok7zc2.execute-api.ap-southeast-2.amazonaws.com/blackheath";
+    "https://pudmp6ay0h.execute-api.ap-southeast-2.amazonaws.com/blackheath";
   console.log(apiUrl);
 
   const getData = async () => {
