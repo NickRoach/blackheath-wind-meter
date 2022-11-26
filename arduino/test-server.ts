@@ -1,7 +1,7 @@
 import express from 'express';
 import bodyParser from 'body-parser'
 const app = express();
-const port = 6969;
+const port = 8080;
 
 const jsonParser = bodyParser.json();
 
