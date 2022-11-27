@@ -1,6 +1,7 @@
 #define TINY_GSM_MODEM_SIM5360
 #define SerialMon Serial
 #include <SoftwareSerial.h>
+#include <TinyGsmClient.h>
 SoftwareSerial SerialAT(4, 5); // RX, TX
 #if !defined(TINY_GSM_RX_BUFFER)
 #define TINY_GSM_RX_BUFFER 650
@@ -34,12 +35,13 @@ float sector;
 int sectorNumber;
 int sectorCounter[16];
 
-#include <TinyGsmClient.h>
 TinyGsm modem(SerialAT);
 TinyGsmClient client(modem);
 #define SIM_POWER 8
-#define speedPin 2
-#define directionPin A0
+#define speedPin 2 // black
+#define directionPin A0 // green
+// VCC: yellow
+// GND: red (yes, red)
 
 void setup() {
    
