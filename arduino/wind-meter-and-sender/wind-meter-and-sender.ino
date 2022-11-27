@@ -9,24 +9,27 @@ SoftwareSerial SerialAT(4, 5); // RX, TX
 const char apn[]  = "live.vodafone.com";
 const char gprsUser[] = "";
 const char gprsPass[] = "";
-//const char server[] = "redirect-server2.herokuapp.com";
-const char server[] = "123.243.73.161";
+const char server[] = "redirect-server2.herokuapp.com";
+//const char server[] = "123.243.73.161";
 const char resource[] = "/";
 const int  port = 80;
 unsigned long timeout;
 
-double directionTime = millis();
-double sendTime = millis();
-double speedTime = millis();
+double directionPeriodTimer = millis();
+double sendPeriodTimer = millis();
+double rotationTriggerMoment = millis();
+double rpmPeriodTimer = millis();
 float windDirection;
 float rawDirection;
 float directionAngle;
+bool rpmTriggered = false;
 long rpmSum;
-bool minMeasured = false;
 int rpmMeasurementCount;
+int rpm;
 int rpmMin;
 int rpmMax;
-float speedValue;
+int rpmAv;
+float rotationInterval;
 float sector;
 int sectorNumber;
 int sectorCounter[16];
@@ -42,15 +45,13 @@ void setup() {
    
   pinMode(speedPin, INPUT_PULLUP);
   pinMode(directionPin, INPUT_PULLUP);
-
-  attachInterrupt(digitalPinToInterrupt(speedPin), updateSpeed, FALLING);
+  attachInterrupt(digitalPinToInterrupt(speedPin), updateRpm, FALLING);
   
   pinMode(SIM_POWER, OUTPUT);
   digitalWrite(SIM_POWER, HIGH);
   delay(180);
   digitalWrite(SIM_POWER, LOW);
   delay(3000);
-  speedTime = millis();
   SerialMon.begin(4800);
   delay(10);
   SerialMon.println("Wait...");
@@ -59,37 +60,38 @@ void setup() {
   SerialMon.println("Initializing modem...");
 }
 
-void updateSpeed(){
-//  if it has been more than 10 ms since the last trigger
-    if(millis() - speedTime > 10){
-      speedValue = millis() - speedTime;
-      speedTime = millis();
-      
-      int rpm = 1/((speedValue/1000)/60);
-      rpmSum += rpm;
-      rpmMeasurementCount++;
-      if(rpm > rpmMax) {rpmMax = rpm;}
-      if(rpm < rpmMin) {rpmMin = rpm;}
-
-    SerialMon.print("rpmMeasurementCount");
-    SerialMon.println(rpmMeasurementCount);
-    SerialMon.print("rpmAverage");
-    SerialMon.println(rpmSum / rpmMeasurementCount);
-    SerialMon.print("rpmSum");
-    SerialMon.println(rpmSum);
-    SerialMon.print("rpmMax");
-    SerialMon.println(rpmMax);
-    SerialMon.print("rpmMin");
-    SerialMon.println(rpmMin);
+void updateRpm(){
+    //  if it has been more than 10 ms since the last trigger. Prevents double triggering
+    if(millis() - rotationTriggerMoment > 10){
+      rotationInterval = millis() - rotationTriggerMoment;
+      rotationTriggerMoment = millis();
+      rpm = 1/((rotationInterval/1000)/60);
+      rpmTriggered = true;
     }
 }
 
-int getRpmAverage() {
-    int averageRpm = rpmSum / rpmMeasurementCount;
-    rpmSum = 0;
-    rpmMax = 0;
-    rpmMin = 10000;
-    return averageRpm;
+void calculateAverageRpm() {
+    // if anemometer isn't spinning, set rpm as 0
+    if(rpmTriggered == false) {rpm = 0;}
+
+    if(rpm > rpmMax) rpmMax = rpm;
+    if((rpm < rpmMin) || rpmMin == -1) rpmMin = rpm;
+    
+    rpmSum += rpm;
+    rpmMeasurementCount++;
+    
+    rpmAv = rpmSum / rpmMeasurementCount;
+    rpmTriggered = false;
+}
+
+void resetMinMaxAv(){
+  rpmMin = -1;
+  rpmMax = 0;
+  rpmSum = 0;
+  rpmMeasurementCount = 0;
+  for(int i = 0; i <= 15; i++){
+    sectorCounter[i] = 0;
+  }
 }
 
 void checkDirection(){
@@ -104,13 +106,12 @@ void checkDirection(){
 
 String getJsonString(){
   String jsonString;
-
   jsonString += "{\"RPMMax\":";
   jsonString += rpmMax;
   jsonString += ",\"RPMMin\":";
   jsonString += rpmMin;
   jsonString += ",\"RPMAverage\":";
-  jsonString += getRpmAverage();
+  jsonString += rpmAv;
   jsonString += ",\"sectorData\":";
   jsonString += "[";
   for(int i = 0; i <= 15; i++){
@@ -121,7 +122,6 @@ String getJsonString(){
   }
   jsonString += "]";
   jsonString += "}";
-  SerialMon.println(jsonString);
   return jsonString;
 }
 
@@ -151,8 +151,6 @@ void sendData(){
     SerialMon.println("GPRS connected");
   }
 
-  while(true){
-
   if (!client.connect(server, port)) {
     SerialMon.println(" fail");
   }
@@ -169,10 +167,8 @@ void sendData(){
   client.println(httpRequestData);
   client.stop();
   SerialMon.println("Done");
-  delay(10000);
-  }
-
-
+  resetMinMaxAv();
+  
   
   timeout = millis();
   while (client.connected() && millis() - timeout < 5000) {
@@ -191,14 +187,24 @@ void sendData(){
 }
 
 void loop() {
-  
-  if(millis() - directionTime > 10000) {
+  // every 5 seconds, read the rpm and set average, min and max
+  if(millis() - rpmPeriodTimer > 5000) {
+    rpmPeriodTimer = millis();
+    SerialMon.println("Updating min max and average");
+    calculateAverageRpm();
     checkDirection();
-    directionTime = millis();
+  }
+  
+  // every second, check direction
+  if(millis() - directionPeriodTimer > 1000) {
+    directionPeriodTimer = millis();
+    SerialMon.println("Updating direction");
+    checkDirection();
   }
 
-  if(millis() - sendTime > 10000) {
-//    sendData();
-    sendTime = millis();
+  // every 5 minutes, send the data
+  if(millis() - sendPeriodTimer > 60000 * 5) {
+    sendPeriodTimer = millis();
+    sendData();
   }
 }
