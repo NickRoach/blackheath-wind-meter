@@ -88,7 +88,7 @@ export const Record = ({ data, northSector, units, cf }: Props) => {
       }}
     >
       <div style={{width: "300px"}}>
-        <p>{`Observation time: ${data.time}`}</p>
+        <h4>Over the preceding 5 minutes:</h4>
         <p>{`Wind speed average: ${(data.RPMAverage/cf.rpmToMs * cf[units]).toFixed(1)} ${units}`}</p>
         <p>{`Wind speed maximum: ${(data.RPMMax/cf.rpmToMs * cf[units]).toFixed(1)} ${units}`}</p>
         <p>{`Wind speed minimum: ${(data.RPMMin/cf.rpmToMs * cf[units]).toFixed(1)} ${units}`}</p>
