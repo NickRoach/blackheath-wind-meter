@@ -18,6 +18,7 @@ const options = {
   },
   scales: {
     r: {
+    startAngle: -11.25,
       ticks: {
         display: false,
       },
