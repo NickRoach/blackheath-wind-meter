@@ -22,6 +22,9 @@ const options = {
       ticks: {
         display: false,
       },
+      grid: {
+        display: false,
+      },
       pointLabels: {
         display: true,
         centerPointLabels: true,
