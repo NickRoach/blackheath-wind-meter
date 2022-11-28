@@ -14,14 +14,20 @@ import {
         legend: {
             display: false,
         },
+        tooltip: {
+            enabled: false,
+        }
     },
     scales: {
         r: {
+            ticks: {
+                display: false,
+            },
           pointLabels: {
             display: true,
             centerPointLabels: true,
             font: {
-              size: 18
+              size: 12
             }
           }
         }
