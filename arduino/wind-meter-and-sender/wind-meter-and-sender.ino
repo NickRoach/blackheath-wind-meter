@@ -97,6 +97,8 @@ void resetMinMaxAv(){
 }
 
 void checkDirection(){
+  // if the air isn't moving, direction is meaningless
+  if(rpm == 0) return;
   rawDirection = analogRead(directionPin);
   sector = rawDirection + 32;
   if(sector > 1024){
