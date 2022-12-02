@@ -63,8 +63,8 @@ void setup() {
 }
 
 void updateRpm(){
-    //  if it has been more than 10 ms since the last trigger. Prevents double triggering
-    if(millis() - rotationTriggerMoment > 10){
+    //  if it has been more than 20 ms since the last trigger. Prevents double triggering. This limits the measurement speed to 100kt
+    if(millis() - rotationTriggerMoment > 20){
       rotationInterval = millis() - rotationTriggerMoment;
       rotationTriggerMoment = millis();
       rpm = 1/((rotationInterval/1000)/60);
@@ -131,35 +131,35 @@ String getJsonString(){
 
 void sendData(){
   modem.restart();
-  SerialMon.print("Waiting for network...");
+  // SerialMon.print("Waiting for network...");
   if (!modem.waitForNetwork()) {
-    SerialMon.println(" fail");
+    // SerialMon.println(" fail");
     delay(1000);
     return;
   }
-  SerialMon.println(" success");
+  // SerialMon.println(" success");
   if (modem.isNetworkConnected()) {
-    SerialMon.println("Network connected");
+    // SerialMon.println("Network connected");
   }
 
-  SerialMon.print(F("Connecting to "));
-  SerialMon.print(apn);
+  // SerialMon.print(F("Connecting to "));
+  // SerialMon.print(apn);
   if (!modem.gprsConnect(apn, gprsUser, gprsPass)) {
-    SerialMon.println(" fail");
+    // SerialMon.println(" fail");
     delay(1000);
     return;
   }
-  SerialMon.println(" success");
+  // SerialMon.println(" success");
 
   if (modem.isGprsConnected()) {
-    SerialMon.println("GPRS connected");
+    // SerialMon.println("GPRS connected");
   }
 
   if (!client.connect(server, port)) {
-    SerialMon.println(" fail");
+    // SerialMon.println(" fail");
   }
 
-  SerialMon.println("Performing HTTP POST request...");
+  // SerialMon.println("Performing HTTP POST request...");
   String httpRequestData = getJsonString();
   client.print(String("POST ") + resource + " HTTP/1.1\r\n");
   client.print(String("Host: ") + server + "\r\n");
@@ -170,7 +170,7 @@ void sendData(){
   client.println();
   client.println(httpRequestData);
   client.stop();
-  SerialMon.println("Done");
+  // SerialMon.println("Done");
   resetMinMaxAv();
   
   
@@ -178,23 +178,23 @@ void sendData(){
   while (client.connected() && millis() - timeout < 5000) {
     while (client.available()) {
       char c = client.read();
-      SerialMon.print(c);
+      // SerialMon.print(c);
       timeout = millis();
     }
   }
 
-  SerialMon.println();
+  // SerialMon.println();
   client.stop();
-  SerialMon.println(F("Server disconnected"));
+  // SerialMon.println(F("Server disconnected"));
   modem.gprsDisconnect();
-  SerialMon.println(F("GPRS disconnected"));
+  // SerialMon.println(F("GPRS disconnected"));
 }
 
 void loop() {
   // every 5 seconds, read the rpm and set average, min and max
   if(millis() - rpmPeriodTimer > 5000) {
     rpmPeriodTimer = millis();
-    SerialMon.println("Updating min max and average");
+    // SerialMon.println("Updating min max and average");
     calculateAverageRpm();
     checkDirection();
   }
@@ -202,7 +202,7 @@ void loop() {
   // every second, check direction
   if(millis() - directionPeriodTimer > 1000) {
     directionPeriodTimer = millis();
-    SerialMon.println("Updating direction");
+    // SerialMon.println("Updating direction");
     checkDirection();
   }
 
