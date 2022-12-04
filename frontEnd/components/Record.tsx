@@ -1,4 +1,3 @@
-import { Grid } from "@mui/material";
 import {
   Chart as ChartJS,
   RadialLinearScale,
@@ -7,36 +6,12 @@ import {
   Legend,
 } from "chart.js";
 import { PolarArea } from "react-chartjs-2";
-import { ChartContainer, Container, ValuesContainer } from "../styles/styles";
-
-const options = {
-  plugins: {
-    legend: {
-      display: false,
-    },
-    tooltip: {
-      enabled: false,
-    },
-  },
-  scales: {
-    r: {
-      startAngle: -11.25,
-      ticks: {
-        display: false,
-      },
-      grid: {
-        display: false,
-      },
-      pointLabels: {
-        display: true,
-        centerPointLabels: true,
-        font: {
-          size: 12,
-        },
-      },
-    },
-  },
-};
+import {
+  ChartContainer,
+  Container,
+  ReadingHeading,
+  ValuesContainer,
+} from "../styles/styles";
 
 type Props = {
   data: any;
@@ -53,6 +28,35 @@ export const Record = ({ data, northSector, units, cf }: Props) => {
     const lastItem = adjustedSectorData.shift();
     adjustedSectorData.push(lastItem);
   }
+
+  const options = {
+    plugins: {
+      legend: {
+        display: false,
+      },
+      tooltip: {
+        enabled: false,
+      },
+    },
+    scales: {
+      r: {
+        startAngle: -11.25,
+        ticks: {
+          display: false,
+        },
+        grid: {
+          display: false,
+        },
+        pointLabels: {
+          display: true,
+          centerPointLabels: true,
+          font: {
+            size: 12,
+          },
+        },
+      },
+    },
+  };
 
   const radarChartData = {
     labels: [
@@ -76,8 +80,8 @@ export const Record = ({ data, northSector, units, cf }: Props) => {
     datasets: [
       {
         data: adjustedSectorData,
-        backgroundColor: "rgba(0, 99, 132, 0.2)",
-        borderColor: "rgba(0, 99, 132, 1)",
+        backgroundColor: "rgba(25,118,210, 0.4)",
+        borderColor: "rgba(25,118,210, 0.5)",
         borderWidth: 1,
       },
     ],
@@ -86,19 +90,18 @@ export const Record = ({ data, northSector, units, cf }: Props) => {
   return (
     <Container>
       <ValuesContainer>
-        <p>Over the preceding 5 minutes:</p>
-        <p>{`Wind speed average: ${(
-          (data.RPMAverage / cf.rpmToMs) *
-          cf[units]
-        ).toFixed(1)} ${units}`}</p>
-        <p>{`Wind speed maximum: ${(
-          (data.RPMMax / cf.rpmToMs) *
-          cf[units]
-        ).toFixed(1)} ${units}`}</p>
-        <p>{`Wind speed minimum: ${(
-          (data.RPMMin / cf.rpmToMs) *
-          cf[units]
-        ).toFixed(1)} ${units}`}</p>
+        <ReadingHeading>
+          Wind speed over the preceding 5 minutes:
+        </ReadingHeading>
+        <p>{`Average: ${((data.RPMAverage / cf.rpmToMs) * cf[units]).toFixed(
+          1
+        )} ${units}`}</p>
+        <p>{`Maximum: ${((data.RPMMax / cf.rpmToMs) * cf[units]).toFixed(
+          1
+        )} ${units}`}</p>
+        <p>{`Minimum: ${((data.RPMMin / cf.rpmToMs) * cf[units]).toFixed(
+          1
+        )} ${units}`}</p>
       </ValuesContainer>
       <ChartContainer>
         <PolarArea options={options} data={radarChartData} />

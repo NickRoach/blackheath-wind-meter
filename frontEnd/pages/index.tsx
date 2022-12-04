@@ -9,7 +9,7 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Button, Stack } from "@mui/material";
-import { Heading } from "../styles/styles";
+import { Heading, Label } from "../styles/styles";
 
 const apiUrl: string =
   "https://pudmp6ay0h.execute-api.ap-southeast-2.amazonaws.com/blackheath";
@@ -26,12 +26,12 @@ const cf = {
 export const Home = () => {
   const [tableData, setTableData] = useState<Observation[]>([]);
   const [dataLoaded, setDataLoaded] = useState(false);
-  const [units, setUnits] = useState("m/s");
+  const [units, setUnits] = useState<string>("");
   const [expanded, setExpanded] = useState<string | false>("0");
 
   useEffect(() => {
     const savedUnits = localStorage.getItem("units");
-    if (savedUnits) setUnits(savedUnits);
+    setUnits(savedUnits || "m/s");
   }, []);
 
   const getData = async () => {
@@ -76,6 +76,7 @@ export const Home = () => {
           name="description"
           content="Live wind observations from Mt Blackheath, NSW Australia"
         />
+        <title>Mt Blackheath Wind</title>
         <link rel="icon" href="/frontEnd/public/favicon.ico" />
       </Head>
       <main className={styles.main}>
@@ -86,7 +87,7 @@ export const Home = () => {
           alignItems={"center"}
           justifyContent={"center"}
         >
-          <p>Units: </p>
+          <Label>Units: </Label>
           <Button
             variant={units === "m/s" ? "contained" : "outlined"}
             value={"m/s"}
@@ -122,6 +123,7 @@ export const Home = () => {
                 expandIcon={<ExpandMoreIcon />}
                 aria-controls="panel1bh-content"
                 id="panel1bh-header"
+                style={{ backgroundColor: "rgba(0,0,0, 0.0)" }}
               >
                 <Typography sx={{ flexShrink: 0 }}>{entry.time}</Typography>
               </AccordionSummary>
