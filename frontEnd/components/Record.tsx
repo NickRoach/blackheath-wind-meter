@@ -1,3 +1,4 @@
+import { Grid } from "@mui/material";
 import {
   Chart as ChartJS,
   RadialLinearScale,
@@ -6,6 +7,7 @@ import {
   Legend,
 } from "chart.js";
 import { PolarArea } from "react-chartjs-2";
+import { ChartContainer, Container } from "../styles/styles";
 
 const options = {
   plugins: {
@@ -82,24 +84,16 @@ export const Record = ({ data, northSector, units, cf }: Props) => {
   };
 
   return (
-    <div
-      style={{
-        "display": "flex",
-        "alignItems": "center",
-        "flexDirection": "row",
-        "justifyContent": "space-around",
-        "width": "100%",
-      }}
-    >
-      <div style={{width: "300px"}}>
+    <Container>
+      <Grid item xs={6} md={4}>
         <h4>Over the preceding 5 minutes:</h4>
         <p>{`Wind speed average: ${(data.RPMAverage/cf.rpmToMs * cf[units]).toFixed(1)} ${units}`}</p>
         <p>{`Wind speed maximum: ${(data.RPMMax/cf.rpmToMs * cf[units]).toFixed(1)} ${units}`}</p>
         <p>{`Wind speed minimum: ${(data.RPMMin/cf.rpmToMs * cf[units]).toFixed(1)} ${units}`}</p>
-      </div>
-      <div style={{ width: "300px" }}>
+      </Grid>
+      <ChartContainer>
         <PolarArea options={options} data={radarChartData} />
-      </div>
-    </div>
+      </ChartContainer>
+    </Container>
   );
 };
