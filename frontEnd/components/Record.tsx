@@ -7,7 +7,7 @@ import {
   Legend,
 } from "chart.js";
 import { PolarArea } from "react-chartjs-2";
-import { ChartContainer, Container } from "../styles/styles";
+import { ChartContainer, Container, ValuesContainer } from "../styles/styles";
 
 const options = {
   plugins: {
@@ -20,7 +20,7 @@ const options = {
   },
   scales: {
     r: {
-    startAngle: -11.25,
+      startAngle: -11.25,
       ticks: {
         display: false,
       },
@@ -85,12 +85,21 @@ export const Record = ({ data, northSector, units, cf }: Props) => {
 
   return (
     <Container>
-      <Grid item xs={6} md={4}>
-        <h4>Over the preceding 5 minutes:</h4>
-        <p>{`Wind speed average: ${(data.RPMAverage/cf.rpmToMs * cf[units]).toFixed(1)} ${units}`}</p>
-        <p>{`Wind speed maximum: ${(data.RPMMax/cf.rpmToMs * cf[units]).toFixed(1)} ${units}`}</p>
-        <p>{`Wind speed minimum: ${(data.RPMMin/cf.rpmToMs * cf[units]).toFixed(1)} ${units}`}</p>
-      </Grid>
+      <ValuesContainer>
+        <p>Over the preceding 5 minutes:</p>
+        <p>{`Wind speed average: ${(
+          (data.RPMAverage / cf.rpmToMs) *
+          cf[units]
+        ).toFixed(1)} ${units}`}</p>
+        <p>{`Wind speed maximum: ${(
+          (data.RPMMax / cf.rpmToMs) *
+          cf[units]
+        ).toFixed(1)} ${units}`}</p>
+        <p>{`Wind speed minimum: ${(
+          (data.RPMMin / cf.rpmToMs) *
+          cf[units]
+        ).toFixed(1)} ${units}`}</p>
+      </ValuesContainer>
       <ChartContainer>
         <PolarArea options={options} data={radarChartData} />
       </ChartContainer>
