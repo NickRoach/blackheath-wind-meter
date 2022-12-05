@@ -8,5 +8,5 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
-      - name: Run build script
+      - name: run build
         run: echo Hello, world!
