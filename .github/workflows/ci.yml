@@ -9,7 +9,7 @@ jobs:
     steps:
       - uses: actions/checkout@v1
         with:
-          node-version: 12
+          node-version: 16
       - name: Run build script
         run: |
           cd frontEnd
