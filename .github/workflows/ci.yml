@@ -11,5 +11,4 @@ jobs:
       - name: Run build script
         run: |
           cd frontEnd
-          node --version
-          npm --version
+          npm ci
