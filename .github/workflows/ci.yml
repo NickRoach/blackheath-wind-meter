@@ -8,7 +8,9 @@ jobs:
 
     steps:
       - uses: actions/checkout@v1
+        with:
+          node-version: 12
       - name: Run build script
         run: |
           cd frontEnd
-          next build && next export
+          npm run build
