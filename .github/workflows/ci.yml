@@ -11,4 +11,4 @@ jobs:
       - name: Run build script
         run: |
           cd frontEnd
-          npm run build
+          next build && next export
