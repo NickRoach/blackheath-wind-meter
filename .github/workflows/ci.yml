@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches:
-      - setup-gitub-build
+      - develop
 
 jobs:
   build:
