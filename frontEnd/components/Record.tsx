@@ -5,6 +5,7 @@ import {
   Tooltip,
   Legend,
 } from "chart.js";
+import { _DeepPartialObject } from "chart.js/types/utils";
 import { PolarArea } from "react-chartjs-2";
 import {
   ChartContainer,
@@ -23,11 +24,15 @@ type Props = {
 export const Record = ({ data, northSector, units, cf }: Props) => {
   ChartJS.register(RadialLinearScale, ArcElement, Tooltip, Legend);
 
-  const adjustedSectorData = [...data.sectorData];
+  let adjustedSectorData = [...data.sectorData];
   for (let i = 0; i < northSector; i++) {
     const lastItem = adjustedSectorData.shift();
     adjustedSectorData.push(lastItem);
   }
+  const maxInData = Math.max(...adjustedSectorData);
+  adjustedSectorData = adjustedSectorData.map(
+    (datum) => (100 / maxInData) * datum
+  );
 
   const options = {
     plugins: {
@@ -56,6 +61,9 @@ export const Record = ({ data, northSector, units, cf }: Props) => {
         },
       },
     },
+    animation: {
+      duration: 0,
+    },
   };
 
   const radarChartData = {
@@ -83,6 +91,12 @@ export const Record = ({ data, northSector, units, cf }: Props) => {
         backgroundColor: "rgba(25,118,210, 0.4)",
         borderColor: "rgba(25,118,210, 0.5)",
         borderWidth: 1,
+      },
+      //this is to make a background circle
+      {
+        data: [Math.max(...adjustedSectorData)],
+        backgroundColor: "rgba(150,150,150, 0.2)",
+        borderWidth: 0,
       },
     ],
   };
