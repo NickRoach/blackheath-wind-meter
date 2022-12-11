@@ -9,7 +9,7 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Button, Stack } from "@mui/material";
-import { Heading, Label } from "../styles/styles";
+import { Heading, Label, SubHeading } from "../styles/styles";
 
 const apiUrl: string =
   "https://pudmp6ay0h.execute-api.ap-southeast-2.amazonaws.com/blackheath";
@@ -81,10 +81,10 @@ export const Home = () => {
       </Head>
       <main className={styles.main}>
         <Heading>Mt Blackheath Wind Observations</Heading>
-        <p>
+        <SubHeading>
           Still in development. Not installed at Mt Blackheath yet! Contact
           njlroach@gmail.com
-        </p>
+        </SubHeading>
         <Stack
           direction={"row"}
           spacing={1}
