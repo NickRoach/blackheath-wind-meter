@@ -76,6 +76,10 @@ export const Home = () => {
           name="description"
           content="Live wind observations from Mt Blackheath, NSW Australia"
         />
+        <meta
+          name="keywords"
+          content="Blue mountains, mount blackheath, live, wind, weather, forecast, paragliding, hang gliding"
+        />
         <title>Mt Blackheath Wind</title>
         <link rel="icon" href="/frontEnd/public/favicon.ico" />
       </Head>
