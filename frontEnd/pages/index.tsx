@@ -81,6 +81,10 @@ export const Home = () => {
       </Head>
       <main className={styles.main}>
         <Heading>Mt Blackheath Wind Observations</Heading>
+        <p>
+          Still in development. Not installed at Mt Blackheath yet! Contact
+          njlroach@gmail.com
+        </p>
         <Stack
           direction={"row"}
           spacing={1}
