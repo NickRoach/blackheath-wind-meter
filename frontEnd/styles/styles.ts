@@ -17,6 +17,16 @@ export const Heading = styled.h1`
   }
 `;
 
+export const SubHeading = styled.p`
+  text-align: center;
+  @media (max-width: 699px) {
+    font-size: 10px;
+  }
+  @media (min-width: 700px) {
+    font-size: 15px;
+  }
+`;
+
 export const Label = styled.h2`
   font-size: 17px;
   color: rgb(55, 55, 71);
