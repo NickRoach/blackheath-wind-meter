@@ -9,6 +9,7 @@ export const ButtonContainer = styled.div`
 
 export const Heading = styled.h1`
   text-align: center;
+  color: rgb(55, 55, 71);
   @media (max-width: 699px) {
     font-size: 18px;
   }
@@ -19,6 +20,7 @@ export const Heading = styled.h1`
 
 export const SubHeading = styled.p`
   text-align: center;
+  color: rgb(55, 55, 71);
   @media (max-width: 699px) {
     font-size: 10px;
   }
