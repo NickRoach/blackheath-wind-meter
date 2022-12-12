@@ -7,6 +7,29 @@ export const ButtonContainer = styled.div`
   align-items: center;
 `;
 
+export const HeadingContainer = styled.div`
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justifycontent: center;
+  overflow-wrap: break-word;
+  @media (max-width: 699px) {
+    width: 180px;
+  }
+`;
+
+export const ImageContainer = styled.div`
+  @media (max-width: 699px) {
+    width: 50px;
+    height: 50px;
+  }
+  @media (min-width: 700px) {
+    width: 70px;
+    height: 70px;
+  }
+  position: relative;
+`;
+
 export const Heading = styled.h1`
   text-align: center;
   color: rgb(55, 55, 71);
@@ -16,6 +39,7 @@ export const Heading = styled.h1`
   @media (min-width: 700px) {
     font-size: 30px;
   }
+  line-height: 100%;
 `;
 
 export const SubHeading = styled.p`

@@ -1,4 +1,5 @@
 import Head from "next/head";
+import Image from "next/image";
 import styles from "../styles/Home.module.css";
 import axios from "axios";
 import React, { useEffect, useState } from "react";
@@ -9,7 +10,13 @@ import AccordionSummary from "@mui/material/AccordionSummary";
 import Typography from "@mui/material/Typography";
 import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import { Button, Stack } from "@mui/material";
-import { Heading, Label, SubHeading } from "../styles/styles";
+import {
+  Heading,
+  HeadingContainer,
+  ImageContainer,
+  Label,
+  SubHeading,
+} from "../styles/styles";
 
 const apiUrl: string =
   "https://pudmp6ay0h.execute-api.ap-southeast-2.amazonaws.com/blackheath";
@@ -78,13 +85,25 @@ export const Home = () => {
         />
         <meta
           name="keywords"
-          content="Blue mountains, mount blackheath, live, wind, weather, forecast, paragliding, hang gliding"
+          content="blue mountains, mount blackheath, live, wind, weather, forecast, paragliding, hang gliding"
         />
+        <meta property="og:image" content="./static/og_icon.png" />
+        <link rel="shortcut icon" href="/static/favicon.ico" />
         <title>Mt Blackheath Wind</title>
-        <link rel="icon" href="/frontEnd/public/favicon.ico" />
       </Head>
       <main className={styles.main}>
-        <Heading>Mt Blackheath Wind Observations</Heading>
+        <Stack direction="row" spacing={1} pt={2}>
+          <ImageContainer>
+            <Image
+              src={"/static/og_icon.png"}
+              alt={"wind blowing under a fluffy cloud"}
+              fill
+            />
+          </ImageContainer>
+          <HeadingContainer>
+            <Heading>Mt Blackheath Wind Observations</Heading>
+          </HeadingContainer>
+        </Stack>
         <SubHeading>
           Still in development. Not installed at Mt Blackheath yet! Contact
           njlroach@gmail.com

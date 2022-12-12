@@ -1,11 +1,13 @@
 .container {
   padding: 0 2rem;
   background-color: #f7f7f7;
+  /* TODO: add repeating background image here */
+  /* background-image: url("../static/tiling-clouds.png");
+  background-attachment: fixed; */
 }
 
 .main {
   min-height: 100vh;
-  padding: 4rem 0;
   flex: 1;
   display: flex;
   flex-direction: column;
