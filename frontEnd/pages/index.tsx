@@ -17,7 +17,7 @@ import {
   Label,
   SubHeading,
 } from "../styles/styles";
-import windCloudIcon from "../static/og_icon.png";
+import windCloudIcon from "../static/wind_cloud_icon.png";
 
 const apiUrl: string =
   "https://pudmp6ay0h.execute-api.ap-southeast-2.amazonaws.com/blackheath";
@@ -88,7 +88,7 @@ export const Home = () => {
           name="keywords"
           content="blue mountains, mount blackheath, live, wind, weather, forecast, paragliding, hang gliding"
         />
-        <meta property="og:image" content="/static/wind_cloud_icon.png" />
+        <meta property="og:image" content="/static/og_image.png" />
         <link rel="shortcut icon" href="/static/favicon.ico" />
         <title>Mt Blackheath Wind</title>
       </Head>
