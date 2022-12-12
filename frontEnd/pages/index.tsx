@@ -88,7 +88,7 @@ export const Home = () => {
           name="keywords"
           content="blue mountains, mount blackheath, live, wind, weather, forecast, paragliding, hang gliding"
         />
-        <meta property="og:image" content="/static/og_icon.png" />
+        <meta property="og:image" content="/static/windCloudIcon.png" />
         <link rel="shortcut icon" href="/static/favicon.ico" />
         <title>Mt Blackheath Wind</title>
       </Head>
