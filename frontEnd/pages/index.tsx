@@ -93,7 +93,7 @@ export const Home = () => {
         <title>Mt Blackheath Wind</title>
       </Head>
       <main className={styles.main}>
-        <Stack direction="row" spacing={1} pt={2}>
+        <Stack direction="row" spacing={2} pt={2}>
           <ImageContainer>
             <Image
               src={windCloudIcon}
@@ -102,7 +102,7 @@ export const Home = () => {
             />
           </ImageContainer>
           <HeadingContainer>
-            <Heading>Mt Blackheath Wind Observations</Heading>
+            <Heading>Mt Blackheath Wind</Heading>
           </HeadingContainer>
         </Stack>
         <SubHeading>
