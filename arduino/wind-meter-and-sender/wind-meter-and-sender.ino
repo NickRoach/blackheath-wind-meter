@@ -10,9 +10,8 @@ SoftwareSerial SerialAT(4, 5); // RX, TX
 const char apn[]  = "live.vodafone.com";
 const char gprsUser[] = "";
 const char gprsPass[] = "";
-const char server[] = "redirect-server2.herokuapp.com";
-//const char server[] = "123.243.73.161";
-const char resource[] = "/";
+const char server[] = "d2fuspthq8wz61.cloudfront.net";
+const char resource[] = "/blackheath";
 const int  port = 80;
 unsigned long timeout;
 
@@ -20,6 +19,7 @@ double directionPeriodTimer = millis();
 double sendPeriodTimer = millis();
 double rotationTriggerMoment = millis();
 double rpmPeriodTimer = millis();
+double adjustedMillis = millis();
 float windDirection;
 float rawDirection;
 float directionAngle;
@@ -34,42 +34,41 @@ float rotationInterval;
 float sector;
 int sectorNumber;
 int sectorCounter[16];
+float voltage;
+float voltageSample;
+int voltageSampleCount = 0;
 
 TinyGsm modem(SerialAT);
 TinyGsmClient client(modem);
 #define SIM_POWER 8
 #define speedPin 2 // black
 #define directionPin A0 // green
+#define voltagePin A2 //black
 // VCC: yellow
 // GND: red (yes, red)
 
 void setup() {
-   
   pinMode(speedPin, INPUT_PULLUP);
   pinMode(directionPin, INPUT_PULLUP);
+  pinMode(voltagePin, INPUT);
   attachInterrupt(digitalPinToInterrupt(speedPin), updateRpm, FALLING);
   
   pinMode(SIM_POWER, OUTPUT);
-  digitalWrite(SIM_POWER, HIGH);
   delay(180);
-  digitalWrite(SIM_POWER, LOW);
-  delay(3000);
   SerialMon.begin(4800);
   delay(10);
-  SerialMon.println("Wait...");
-  SerialAT.begin(57600);
-  delay(600);
-  SerialMon.println("Initializing modem...");
+  SerialMon.println();
+  SerialMon.println("Starting...");
 }
 
 void updateRpm(){
-    //  if it has been more than 20 ms since the last trigger. Prevents double triggering. This limits the measurement speed to 100kt
-    if(millis() - rotationTriggerMoment > 20){
-      rotationInterval = millis() - rotationTriggerMoment;
-      rotationTriggerMoment = millis();
-      rpm = 1/((rotationInterval/1000)/60);
-      rpmTriggered = true;
-    }
+  //  if it has been more than 20 ms since the last trigger. Prevents double triggering. This limits the measurement speed to 100kt
+  if(adjustedMillis - rotationTriggerMoment > 20){
+    rotationInterval = adjustedMillis - rotationTriggerMoment;
+    rotationTriggerMoment = adjustedMillis;
+    rpm = 1/((rotationInterval/1000)/60);
+    rpmTriggered = true;
+  }
 }
 
 void calculateAverageRpm() {
@@ -108,6 +107,12 @@ void checkDirection(){
   sectorCounter[sectorNumber]++;
 }
 
+void calculateAverageVoltage() {
+  voltageSample = analogRead(voltagePin);
+  voltageSample = voltageSample / 1024 * 5; 
+  voltage = ((voltage * voltageSampleCount) + voltageSample) / ++voltageSampleCount;
+}
+
 String getJsonString(){
   String jsonString;
   jsonString += "{\"RPMMax\":";
@@ -123,43 +128,49 @@ String getJsonString(){
     if(i < 15){
         jsonString += ",";
       }
-  }
+  };
   jsonString += "]";
+  jsonString += ",\"voltage\":";
+  jsonString += voltage;
   jsonString += "}";
   return jsonString;
 }
 
 void sendData(){
+  digitalWrite(SIM_POWER, HIGH);
+  delay(100);
+  SerialMon.println("Sending data...");
+  SerialAT.begin(57600);
   modem.restart();
-  // SerialMon.print("Waiting for network...");
+  SerialMon.print("Waiting for network...");
   if (!modem.waitForNetwork()) {
-    // SerialMon.println(" fail");
+     SerialMon.println(" fail");
     delay(1000);
     return;
   }
-  // SerialMon.println(" success");
+   SerialMon.println(" success");
   if (modem.isNetworkConnected()) {
-    // SerialMon.println("Network connected");
+     SerialMon.println("Network connected");
   }
 
-  // SerialMon.print(F("Connecting to "));
-  // SerialMon.print(apn);
+   SerialMon.print(F("Connecting to "));
+   SerialMon.print(apn);
   if (!modem.gprsConnect(apn, gprsUser, gprsPass)) {
-    // SerialMon.println(" fail");
+     SerialMon.println(" fail");
     delay(1000);
     return;
   }
-  // SerialMon.println(" success");
+   SerialMon.println(" success");
 
   if (modem.isGprsConnected()) {
-    // SerialMon.println("GPRS connected");
+     SerialMon.println("GPRS connected");
   }
 
   if (!client.connect(server, port)) {
-    // SerialMon.println(" fail");
+     SerialMon.println(" fail");
   }
 
-  // SerialMon.println("Performing HTTP POST request...");
+  SerialMon.println("Performing HTTP POST request...");
   String httpRequestData = getJsonString();
   client.print(String("POST ") + resource + " HTTP/1.1\r\n");
   client.print(String("Host: ") + server + "\r\n");
@@ -170,39 +181,38 @@ void sendData(){
   client.println();
   client.println(httpRequestData);
   client.stop();
-  // SerialMon.println("Done");
+  
+  SerialMon.println("Done");
   resetMinMaxAv();
-  
-  
+    
   timeout = millis();
   while (client.connected() && millis() - timeout < 5000) {
     while (client.available()) {
       char c = client.read();
-      // SerialMon.print(c);
-      timeout = millis();
+       SerialMon.print(c);
+      timeout = adjustedMillis;
     }
   }
-
-  // SerialMon.println();
   client.stop();
-  // SerialMon.println(F("Server disconnected"));
+  SerialMon.println(F("Server disconnected"));
   modem.gprsDisconnect();
-  // SerialMon.println(F("GPRS disconnected"));
+  SerialMon.println(F("GPRS disconnected"));
+  SerialMon.println();
+  digitalWrite(SIM_POWER, LOW);
 }
 
 void loop() {
   // every 5 seconds, read the rpm and set average, min and max
   if(millis() - rpmPeriodTimer > 5000) {
     rpmPeriodTimer = millis();
-    // SerialMon.println("Updating min max and average");
     calculateAverageRpm();
     checkDirection();
+    calculateAverageVoltage();
   }
   
   // every second, check direction
   if(millis() - directionPeriodTimer > 1000) {
     directionPeriodTimer = millis();
-    // SerialMon.println("Updating direction");
     checkDirection();
   }
 
@@ -210,5 +220,6 @@ void loop() {
   if(millis() - sendPeriodTimer > 60000 * 5) {
     sendPeriodTimer = millis();
     sendData();
+    voltageSampleCount = 0;
   }
 }
