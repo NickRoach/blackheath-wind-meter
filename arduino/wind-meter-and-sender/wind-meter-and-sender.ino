@@ -19,7 +19,6 @@ double directionPeriodTimer = millis();
 double sendPeriodTimer = millis();
 double rotationTriggerMoment = millis();
 double rpmPeriodTimer = millis();
-double adjustedMillis = millis();
 float windDirection;
 float rawDirection;
 float directionAngle;
@@ -41,18 +40,17 @@ int voltageSampleCount = 0;
 TinyGsm modem(SerialAT);
 TinyGsmClient client(modem);
 #define SIM_POWER 8
-#define speedPin 2 // black
+#define speedPin 2      // black
 #define directionPin A0 // green
-#define voltagePin A2 //black
-// VCC: yellow
-// GND: red (yes, red)
+#define voltagePin A2   // black
+                        // VCC: yellow
+                        // GND: red (yes, red)
 
 void setup() {
   pinMode(speedPin, INPUT_PULLUP);
   pinMode(directionPin, INPUT_PULLUP);
   pinMode(voltagePin, INPUT);
   attachInterrupt(digitalPinToInterrupt(speedPin), updateRpm, FALLING);
-  
   pinMode(SIM_POWER, OUTPUT);
   delay(180);
   SerialMon.begin(4800);
@@ -63,9 +61,9 @@ void setup() {
 
 void updateRpm(){
   //  if it has been more than 20 ms since the last trigger. Prevents double triggering. This limits the measurement speed to 100kt
-  if(adjustedMillis - rotationTriggerMoment > 20){
-    rotationInterval = adjustedMillis - rotationTriggerMoment;
-    rotationTriggerMoment = adjustedMillis;
+  if(millis() - rotationTriggerMoment > 20){
+    rotationInterval = millis() - rotationTriggerMoment;
+    rotationTriggerMoment = millis();
     rpm = 1/((rotationInterval/1000)/60);
     rpmTriggered = true;
   }
@@ -190,7 +188,7 @@ void sendData(){
     while (client.available()) {
       char c = client.read();
        SerialMon.print(c);
-      timeout = adjustedMillis;
+      timeout = millis();
     }
   }
   client.stop();
