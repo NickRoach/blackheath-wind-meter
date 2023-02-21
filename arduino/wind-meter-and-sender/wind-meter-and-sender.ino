@@ -2,7 +2,6 @@
 #define SerialMon Serial
 #include <SoftwareSerial.h>
 #include <TinyGsmClient.h>
-#include <LowPower.h>
 SoftwareSerial SerialAT(4, 5); // RX, TX
 #if !defined(TINY_GSM_RX_BUFFER)
 #define TINY_GSM_RX_BUFFER 650
