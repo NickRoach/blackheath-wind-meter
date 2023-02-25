@@ -22,6 +22,7 @@ double pulse2 = -1;
 double waitTime = millis();
 boolean timedOut = false;
 int timeToWait = 2000;
+int loopCount = 0;
 
 double directionPeriodTimer = millis();
 double sendPeriodTimer = millis();
@@ -59,7 +60,6 @@ void setup() {
   pinMode(directionPin, INPUT_PULLUP);
   pinMode(voltagePin, INPUT);
   pinMode(SIM_POWER, OUTPUT);
-  delay(180);
   SerialMon.begin(4800);
   delay(10);
   SerialMon.println();
@@ -74,54 +74,39 @@ void loop() {
   pulse2 = -1;
   timedOut = false;
 
+  Serial.print("loopCount: ");
+  Serial.println(loopCount);
+
   // wait for pulse1
   while(timedOut == false && pulse1 == -1) {
     waitTime = millis();
     if(waitTime >= startTime + timeToWait) timedOut = true;
   }
   
-  // wait for pulse2
+  // wait for pulse2. If pulse1 timed out, don't bother
   startTime = millis();
   while(timedOut == false && pulse2 == -1) {
     waitTime = millis();
     if(waitTime >= startTime + timeToWait) timedOut = true;
   }
 
-  SerialMon.print("rpm: ");
-  if(pulse1 != -1 && pulse2 != -1) {
-    rpm = 1/(((pulse2 - pulse1)/1000)/60);
-    SerialMon.println(rpm);
-  } else {
-    SerialMon.println(0);
-  }
-  checkDirection();
-  Serial.print("sectorNumber: ");
-  Serial.println(sectorNumber);
+  // we don't need to listen to the anemometer anymore. Also, interrupts will wake it up from sleep
   detachInterrupt(digitalPinToInterrupt(speedPin));
+
+  calculateAverageRpm();
+  checkDirection();
+  calculateAverageVoltage();
+
+  ++loopCount;
+  if(loopCount >= 40){
+    sendData();
+    loopCount = 0;
+    voltageSampleCount = 0;
+    resetMinMaxAv();
+  }
+  
   Serial.flush();
   LowPower.powerDown(SLEEP_4S, ADC_OFF, BOD_OFF); 
-
-  
-//  // every 5 seconds, read the rpm and set average, min and max
-//  if(millis() - rpmPeriodTimer > 5000) {
-//    rpmPeriodTimer = millis();
-//    calculateAverageRpm();
-//    checkDirection();
-//    calculateAverageVoltage();
-//  }
-//  
-//  // every second, check direction
-//  if(millis() - directionPeriodTimer > 1000) {
-//    directionPeriodTimer = millis();
-//    checkDirection();
-//  }
-//
-//  // every 5 minutes, send the data
-//  if(millis() - sendPeriodTimer > 60000 * 5) {
-//    sendPeriodTimer = millis();
-//    sendData();
-//    voltageSampleCount = 0;
-//  }
 }
 
 
@@ -139,8 +124,13 @@ void recordPulseTime(){
 }
 
 void calculateAverageRpm() {
-    // if anemometer isn't spinning, set rpm as 0
-    if(rpmTriggered == false) {rpm = 0;}
+// if anemometer isn't spinning, set rpm as 0
+    if(timedOut == true) {
+        rpm = 0;
+      }
+      else {
+        rpm = 1/(((pulse2 - pulse1)/1000)/60);
+      }
 
     if(rpm > rpmMax) rpmMax = rpm;
     if((rpm < rpmMin) || rpmMin == -1) rpmMin = rpm;
@@ -150,16 +140,6 @@ void calculateAverageRpm() {
     
     rpmAv = rpmSum / rpmMeasurementCount;
     rpmTriggered = false;
-}
-
-void resetMinMaxAv(){
-  rpmMin = -1;
-  rpmMax = 0;
-  rpmSum = 0;
-  rpmMeasurementCount = 0;
-  for(int i = 0; i <= 15; i++){
-    sectorCounter[i] = 0;
-  }
 }
 
 void checkDirection(){
@@ -180,31 +160,21 @@ void calculateAverageVoltage() {
   voltage = ((voltage * voltageSampleCount) + voltageSample) / ++voltageSampleCount;
 }
 
-String getJsonString(){
-  String jsonString;
-  jsonString += "{\"RPMMax\":";
-  jsonString += rpmMax;
-  jsonString += ",\"RPMMin\":";
-  jsonString += rpmMin;
-  jsonString += ",\"RPMAverage\":";
-  jsonString += rpmAv;
-  jsonString += ",\"sectorData\":";
-  jsonString += "[";
+void resetMinMaxAv(){
+  rpmMin = -1;
+  rpmMax = 0;
+  rpmSum = 0;
+  rpmMeasurementCount = 0;
   for(int i = 0; i <= 15; i++){
-    jsonString += sectorCounter[i];
-    if(i < 15){
-        jsonString += ",";
-      }
-  };
-  jsonString += "]";
-  jsonString += ",\"voltage\":";
-  jsonString += voltage;
-  jsonString += "}";
-  return jsonString;
+    sectorCounter[i] = 0;
+  }
 }
 
 void sendData(){
-  if(voltage < 3.6) return;
+  if(voltage < 3.6) {
+    SerialMon.println("low voltage");
+    return;
+  }
   digitalWrite(SIM_POWER, HIGH);
   delay(100);
   SerialMon.println("Sending data...");
@@ -255,5 +225,27 @@ void sendData(){
   SerialMon.println(F("GPRS disconnected"));
   SerialMon.println();
   digitalWrite(SIM_POWER, LOW);
-  resetMinMaxAv();
+}
+
+String getJsonString(){
+  String jsonString;
+  jsonString += "{\"RPMMax\":";
+  jsonString += rpmMax;
+  jsonString += ",\"RPMMin\":";
+  jsonString += rpmMin;
+  jsonString += ",\"RPMAverage\":";
+  jsonString += rpmAv;
+  jsonString += ",\"sectorData\":";
+  jsonString += "[";
+  for(int i = 0; i <= 15; i++){
+    jsonString += sectorCounter[i];
+    if(i < 15){
+        jsonString += ",";
+      }
+  };
+  jsonString += "]";
+  jsonString += ",\"voltage\":";
+  jsonString += voltage;
+  jsonString += "}";
+  return jsonString;
 }
