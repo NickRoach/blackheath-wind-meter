@@ -98,11 +98,12 @@ exports.handler = async (event, context) => {
   };
 
   const createWeatherData = async (data) => {
+    const timeWithSeconds = new Date().toLocaleString(undefined, {
+      timeZone: "Australia/Sydney",
+    });
     const newData = {
       ...data,
-      time: new Date().toLocaleString(undefined, {
-        timeZone: "Australia/Sydney",
-      }),
+      time: timeWithSeconds.slice(0, 16) + timeWithSeconds.slice(-3),
     };
     console.log("Incoming data");
     console.log(data);

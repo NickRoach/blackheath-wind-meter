@@ -18,17 +18,15 @@ const char server[] = "d2fuspthq8wz61.cloudfront.net";
 const char resource[] = "/blackheath";
 const int  port = 80;
 unsigned long timeout;
-
-double startTime = millis();
+double startTime;
 double pulse1 = -1;
 double pulse2 = -1;
 double waitTime = millis();
 boolean timedOut = false;
 int timeToWait = 2000;
-int minuteLastSent;
-int dateTimeLastUpdated;
+int minuteLastSent = -1;
+int dateTimeLastUpdated = -1;
 RtcDateTime rtcTime;
-
 float windDirection;
 float rawDirection;
 float directionAngle;
@@ -38,7 +36,6 @@ int rpm;
 int rpmMin;
 int rpmMax;
 int rpmAv;
-float rotationInterval;
 float sector;
 int sectorNumber;
 int sectorCounter[16];
@@ -82,6 +79,8 @@ void setup() {
   SerialMon.println("Starting...");
 
   Rtc.Begin();
+  Rtc.SetIsWriteProtected(false);
+  Rtc.SetIsRunning(true);
   Rtc.SetIsWriteProtected(true);
   rtcTime = Rtc.GetDateTime();
   minuteLastSent = rtcTime.Minute();
@@ -118,13 +117,13 @@ void loop() {
   calculateAverageRpm();
   checkDirection();
   calculateAverageVoltage();
-
+  
   rtcTime = Rtc.GetDateTime();
+    
   if(rtcTime.Minute() % 5 == 0 && rtcTime.Minute() != minuteLastSent){
-    sendData();
     minuteLastSent = rtcTime.Minute();
-    voltageSampleCount = 0;
-    resetMinMaxAv();
+    sendData();
+    resetVariables();
   }
   
   Serial.flush();
@@ -148,11 +147,11 @@ void calculateAverageRpm() {
 // if anemometer isn't spinning, set rpm as 0
   if(timedOut == true) {
       rpm = 0;
-//      SerialMon.println("timed out");
+    // SerialMon.println("timed out");
     }
     else {
       rpm = 1/(((pulse2 - pulse1)/1000)/60);
-//      SerialMon.println("rpm set");
+    // SerialMon.println("rpm set");
     }
   if(rpm > rpmMax) rpmMax = rpm;
   if((rpm < rpmMin) || rpmMin == -1) rpmMin = rpm;
@@ -162,34 +161,13 @@ void calculateAverageRpm() {
 }
 
 void sendData(){
-  //  if(voltage < 3.6) return;
+  if(voltage < 3.6) return;
   SerialMon.println("Sending data...");
   digitalWrite(SIM_POWER, HIGH);
   delay(100);
   SerialAT.begin(57600);
   modem.restart();
 
-  // just after midnight each day, update the RTC with network time
-  if(rtcTime.Day() != dateTimeLastUpdated){
-  int   year     = 0;
-  int   month    = 0;
-  int   day      = 0;
-  int   hour     = 0;
-  int   minute   = 0;
-  int   second   = 0;
-  float timezone = 0;
-  if (modem.getNetworkTime(&year, &month, &day, &hour, &minute, &second, &timezone)) {
-    RtcDateTime gsmTime = RtcDateTime(year, month, day, hour, minute, second);
-    SerialMon.println("Setting time with network time");
-    Rtc.SetIsWriteProtected(false);
-    Rtc.SetDateTime(gsmTime);
-    Rtc.SetIsWriteProtected(true);
-    dateTimeLastUpdated = gsmTime.Day();
-    } else {
-      SerialMon.println("Couldn't get network time, retrying next send cycle");
-    }
-  }
-  
   SerialMon.print("Waiting for network...");
   if (!modem.waitForNetwork()) {
      SerialMon.println(" fail");
@@ -201,8 +179,33 @@ void sendData(){
      SerialMon.println("Network connected");
   }
 
+  // just after midnight each day, update the RTC with network time
+  if(rtcTime.Day() != dateTimeLastUpdated){
+  SerialMon.print("Setting time with network time... ");
+  int   year     = 0;
+  int   month    = 0;
+  int   day      = 0;
+  int   hour     = 0;
+  int   minute   = 0;
+  int   second   = 0;
+  float timezone = 0;
+  if (modem.getNetworkTime(&year, &month, &day, &hour, &minute, &second, &timezone)) {
+    RtcDateTime gsmTime = RtcDateTime(year, month, day, hour, minute, second);
+    Rtc.SetIsWriteProtected(false);
+    Rtc.SetDateTime(gsmTime);
+    Rtc.SetIsWriteProtected(true);
+    dateTimeLastUpdated = gsmTime.Day();
+    SerialMon.println("done");
+    } else {
+      SerialMon.println("couldn't get network time, retrying next send cycle");
+    }
+  }
+
+
+
   SerialMon.print(F("Connecting to "));
   SerialMon.print(apn);
+  SerialMon.print("...");
   if (!modem.gprsConnect(apn, gprsUser, gprsPass)) {
     SerialMon.println(" fail");
     delay(1000);
@@ -230,11 +233,9 @@ void sendData(){
   client.println(httpRequestData);
   client.stop();
   SerialMon.println("Done");
-  SerialMon.println(F("Server disconnected"));
-  modem.gprsDisconnect();
-  SerialMon.println(F("GPRS disconnected"));
-  SerialMon.println();
   digitalWrite(SIM_POWER, LOW);
+  SerialMon.println();
+  SerialMon.println("Recording wind data...");
 }
 
 
@@ -261,7 +262,7 @@ void calculateAverageVoltage() {
 
 
 
-void resetMinMaxAv(){
+void resetVariables(){
   rpmMin = -1;
   rpmMax = 0;
   rpmSum = 0;
@@ -269,6 +270,7 @@ void resetMinMaxAv(){
   for(int i = 0; i <= 15; i++){
     sectorCounter[i] = 0;
   }
+  voltageSampleCount = 0;
 }
 
 
