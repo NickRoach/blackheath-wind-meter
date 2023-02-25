@@ -98,22 +98,10 @@ exports.handler = async (event, context) => {
   };
 
   const createWeatherData = async (data) => {
-    const newData = {
-      ...data,
-      time: new Date().toLocaleString(undefined, {
-        timeZone: "Australia/Sydney",
-      }),
-    };
-    console.log("Incoming data");
-    console.log(data);
-    console.log("New Data");
-    console.log(newData);
     const currentData = await getWeatherData();
-    console.log("Current Data");
-    console.log(currentData);
     if (currentData === "No Data") {
       const newDataArray = [];
-      newDataArray.unshift(newData);
+      newDataArray.unshift(data);
       return await uploadObjectToS3(BUCKET_NAME, BUCKET_KEY, newDataArray).then(
         (response) => {
           return {
@@ -124,12 +112,12 @@ exports.handler = async (event, context) => {
       );
     } else {
       const newDataArray = currentData;
-      newDataArray.unshift(newData);
+      newDataArray.unshift(data);
       if (newDataArray.length > MAX_DATA_LENGTH) {
         newDataArray.pop();
       }
       await putObjectToS3(BUCKET_NAME, BUCKET_KEY, newDataArray);
-      return newData;
+      return data;
     }
   };
 
