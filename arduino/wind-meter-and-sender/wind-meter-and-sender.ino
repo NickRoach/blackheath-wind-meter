@@ -41,18 +41,17 @@ int voltageSampleCount = 0;
 TinyGsm modem(SerialAT);
 TinyGsmClient client(modem);
 #define SIM_POWER 8
-#define speedPin 2 // black
+#define speedPin 2      // black
 #define directionPin A0 // green
-#define voltagePin A2 //black
-// VCC: yellow
-// GND: red (yes, red)
+#define voltagePin A2   // black
+                        // VCC: yellow
+                        // GND: red (yes, red)
 
 void setup() {
   pinMode(speedPin, INPUT_PULLUP);
   pinMode(directionPin, INPUT_PULLUP);
   pinMode(voltagePin, INPUT);
   attachInterrupt(digitalPinToInterrupt(speedPin), updateRpm, FALLING);
-  
   pinMode(SIM_POWER, OUTPUT);
   delay(180);
   SerialMon.begin(4800);
@@ -63,9 +62,9 @@ void setup() {
 
 void updateRpm(){
   //  if it has been more than 20 ms since the last trigger. Prevents double triggering. This limits the measurement speed to 100kt
-  if(adjustedMillis - rotationTriggerMoment > 20){
-    rotationInterval = adjustedMillis - rotationTriggerMoment;
-    rotationTriggerMoment = adjustedMillis;
+  if(millis() - rotationTriggerMoment > 20){
+    rotationInterval = millis() - rotationTriggerMoment;
+    rotationTriggerMoment = millis();
     rpm = 1/((rotationInterval/1000)/60);
     rpmTriggered = true;
   }
@@ -137,6 +136,7 @@ String getJsonString(){
 }
 
 void sendData(){
+  if(voltage < 3.6) return;
   digitalWrite(SIM_POWER, HIGH);
   delay(100);
   SerialMon.println("Sending data...");
@@ -181,24 +181,13 @@ void sendData(){
   client.println();
   client.println(httpRequestData);
   client.stop();
-  
   SerialMon.println("Done");
-  resetMinMaxAv();
-    
-  timeout = millis();
-  while (client.connected() && millis() - timeout < 5000) {
-    while (client.available()) {
-      char c = client.read();
-       SerialMon.print(c);
-      timeout = adjustedMillis;
-    }
-  }
-  client.stop();
   SerialMon.println(F("Server disconnected"));
   modem.gprsDisconnect();
   SerialMon.println(F("GPRS disconnected"));
   SerialMon.println();
   digitalWrite(SIM_POWER, LOW);
+  resetMinMaxAv();
 }
 
 void loop() {
