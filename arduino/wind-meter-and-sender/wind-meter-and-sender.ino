@@ -125,6 +125,9 @@ void loop() {
     sendData();
     resetVariables();
   }
+
+  SerialMon.print("jsonString");
+  SerialMon.println(getJsonString(rtcTime));
   
   Serial.flush();
   LowPower.powerDown(SLEEP_4S, ADC_OFF, BOD_OFF); 
@@ -141,7 +144,18 @@ void recordPulseTime(){
   else if (pulse2 == -1 && millis() - pulse1 > 20){
     pulse2 = millis();
   }
-}
+  
+  // wait for pulse2. If pulse1 timed out, don't bother
+  startTime = millis();
+  while(timedOut == false && pulse2 == -1) {
+    waitTime = millis();
+    if(waitTime >= startTime + timeToWait) timedOut = true;
+  }
+  
+  // we don't need to listen to the anemometer anymore. Also, interrupts would wake it up from sleep
+  detachInterrupt(digitalPinToInterrupt(speedPin));
+
+
 
 void calculateAverageRpm() {
 // if anemometer isn't spinning, set rpm as 0
@@ -160,9 +174,12 @@ void calculateAverageRpm() {
   rpmAv = rpmSum / rpmMeasurementCount;
 }
 
+
+
 void sendData(){
-  if(voltage < 3.6) return;
+//  if(voltage < 3.6) return;
   SerialMon.println("Sending data...");
+  RtcDateTime sendTime = Rtc.GetDateTime();
   digitalWrite(SIM_POWER, HIGH);
   delay(100);
   SerialAT.begin(57600);
@@ -200,9 +217,7 @@ void sendData(){
       SerialMon.println("couldn't get network time, retrying next send cycle");
     }
   }
-
-
-
+  
   SerialMon.print(F("Connecting to "));
   SerialMon.print(apn);
   SerialMon.print("...");
@@ -222,7 +237,7 @@ void sendData(){
   }
 
   SerialMon.println("Performing HTTP POST...");
-  String httpRequestData = getJsonString();
+  String httpRequestData = getJsonString(sendTime);
   client.print(String("POST ") + resource + " HTTP/1.1\r\n");
   client.print(String("Host: ") + server + "\r\n");
   client.println("Connection: close");
@@ -275,7 +290,8 @@ void resetVariables(){
 
 
 
-String getJsonString(){
+String getJsonString(RtcDateTime sendTime){
+  
   String jsonString;
   jsonString += "{\"RPMMax\":";
   jsonString += rpmMax;
@@ -292,6 +308,20 @@ String getJsonString(){
       }
   };
   jsonString += "]";
+  jsonString += ",\"time\":";
+  jsonString += "\"";
+  jsonString += sendTime.Year();
+  jsonString += "/";
+  jsonString += sendTime.Month();
+  jsonString += "/";
+  jsonString += sendTime.Day();
+  jsonString += " ";
+  if(sendTime.Hour() < 10) jsonString += "0";
+  jsonString += sendTime.Hour();
+  jsonString += ":";
+  if(sendTime.Minute() < 10) jsonString += "0";
+  jsonString += sendTime.Minute();
+  jsonString += "\"";
   jsonString += ",\"voltage\":";
   jsonString += voltage;
   jsonString += "}";
