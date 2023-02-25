@@ -135,6 +135,7 @@ String getJsonString(){
 }
 
 void sendData(){
+  if(voltage < 3.6) return;
   digitalWrite(SIM_POWER, HIGH);
   delay(100);
   SerialMon.println("Sending data...");
@@ -179,24 +180,13 @@ void sendData(){
   client.println();
   client.println(httpRequestData);
   client.stop();
-  
   SerialMon.println("Done");
-  resetMinMaxAv();
-    
-  timeout = millis();
-  while (client.connected() && millis() - timeout < 5000) {
-    while (client.available()) {
-      char c = client.read();
-       SerialMon.print(c);
-      timeout = millis();
-    }
-  }
-  client.stop();
   SerialMon.println(F("Server disconnected"));
   modem.gprsDisconnect();
   SerialMon.println(F("GPRS disconnected"));
   SerialMon.println();
   digitalWrite(SIM_POWER, LOW);
+  resetMinMaxAv();
 }
 
 void loop() {
