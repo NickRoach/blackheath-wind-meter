@@ -125,9 +125,6 @@ void loop() {
     sendData();
     resetVariables();
   }
-
-  SerialMon.print("jsonString");
-  SerialMon.println(getJsonString(rtcTime));
   
   Serial.flush();
   LowPower.powerDown(SLEEP_4S, ADC_OFF, BOD_OFF); 
@@ -144,20 +141,11 @@ void recordPulseTime(){
   else if (pulse2 == -1 && millis() - pulse1 > 20){
     pulse2 = millis();
   }
-  
-  // wait for pulse2. If pulse1 timed out, don't bother
-  startTime = millis();
-  while(timedOut == false && pulse2 == -1) {
-    waitTime = millis();
-    if(waitTime >= startTime + timeToWait) timedOut = true;
-  }
-  
-  // we don't need to listen to the anemometer anymore. Also, interrupts would wake it up from sleep
-  detachInterrupt(digitalPinToInterrupt(speedPin));
+}
 
 
 
-void calculateAverageRpm() {
+void calculateAverageRpm(){
 // if anemometer isn't spinning, set rpm as 0
   if(timedOut == true) {
       rpm = 0;
