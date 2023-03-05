@@ -101,21 +101,36 @@ export const Record = ({ data, northSector, units, cf }: Props) => {
     ],
   };
 
+  const avLessThan4kt = data.RPMAverage / cf.rpmToMs < cf.minimumMs;
+  const maxLessThan4kt = data.RPMMax / cf.rpmToMs < cf.minimumMs;
+  const minLessThan4kt = data.RPMMin / cf.rpmToMs < cf.minimumMs;
+
   return (
     <Container>
       <ValuesContainer>
         <ReadingHeading>
           Wind speed over the preceding 15 minutes:
         </ReadingHeading>
-        <p>{`Average: ${((data.RPMAverage / cf.rpmToMs) * cf[units]).toFixed(
-          1
-        )} ${units}`}</p>
-        <p>{`Maximum: ${((data.RPMMax / cf.rpmToMs) * cf[units]).toFixed(
-          1
-        )} ${units}`}</p>
-        <p>{`Minimum: ${((data.RPMMin / cf.rpmToMs) * cf[units]).toFixed(
-          1
-        )} ${units}`}</p>
+        <p>
+          Average:{" "}
+          {avLessThan4kt
+            ? `< ${(cf.minimumMs * cf[units]).toFixed(0)} ${units}`
+            : `${((data.RPMAverage / cf.rpmToMs) * cf[units]).toFixed(
+                1
+              )} ${units}`}
+        </p>
+        <p>
+          Maximum:{" "}
+          {maxLessThan4kt
+            ? `< ${(cf.minimumMs * cf[units]).toFixed(0)} ${units}`
+            : `${((data.RPMMax / cf.rpmToMs) * cf[units]).toFixed(1)} ${units}`}
+        </p>
+        <p>
+          Minimum:{" "}
+          {minLessThan4kt
+            ? `< ${(cf.minimumMs * cf[units]).toFixed(0)} ${units}`
+            : `${((data.RPMMin / cf.rpmToMs) * cf[units]).toFixed(1)} ${units}`}
+        </p>
       </ValuesContainer>
       <ChartContainer>
         <ReadingHeading>Direction frequency:</ReadingHeading>

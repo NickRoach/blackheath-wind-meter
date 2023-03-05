@@ -29,6 +29,7 @@ const cf = {
   "knots": 1.94384,
   "km/h": 3.6,
   "m/s": 1,
+  "minimumMs": 0.5,
 };
 
 export const Home = () => {
