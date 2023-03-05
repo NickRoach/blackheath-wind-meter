@@ -54,6 +54,13 @@ export const Home = () => {
     } else return [];
   };
 
+  const checkForRefetch = () => {
+    const currentDate = new Date();
+    if ((currentDate.getMinutes() - 1) % 15 === 0) getData();
+  };
+
+  setInterval(checkForRefetch, 31000);
+
   type Observation = {
     time: string;
     RPMMax: number;
