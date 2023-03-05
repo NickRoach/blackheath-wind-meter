@@ -133,7 +133,6 @@ export const Record = ({ data, northSector, units, cf }: Props) => {
         </p>
       </ValuesContainer>
       <ChartContainer>
-        <ReadingHeading>Direction frequency:</ReadingHeading>
         <PolarArea options={options} data={radarChartData} />
       </ChartContainer>
     </Container>
