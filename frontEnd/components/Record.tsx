@@ -105,7 +105,7 @@ export const Record = ({ data, northSector, units, cf }: Props) => {
     <Container>
       <ValuesContainer>
         <ReadingHeading>
-          Wind speed over the preceding 5 minutes:
+          Wind speed over the preceding 15 minutes:
         </ReadingHeading>
         <p>{`Average: ${((data.RPMAverage / cf.rpmToMs) * cf[units]).toFixed(
           1
@@ -118,6 +118,7 @@ export const Record = ({ data, northSector, units, cf }: Props) => {
         )} ${units}`}</p>
       </ValuesContainer>
       <ChartContainer>
+        <ReadingHeading>Direction frequency:</ReadingHeading>
         <PolarArea options={options} data={radarChartData} />
       </ChartContainer>
     </Container>
