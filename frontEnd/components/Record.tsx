@@ -114,7 +114,7 @@ export const Record = ({ data, northSector, units, cf }: Props) => {
         <p>
           Average:{" "}
           {avLessThan4kt
-            ? `< ${(cf.minimumMs * cf[units]).toFixed(0)} ${units}`
+            ? `< ${(cf.minimumMs * cf[units]).toFixed(0)} ${units.slice(0, 4)}`
             : `${((data.RPMAverage / cf.rpmToMs) * cf[units]).toFixed(
                 1
               )} ${units}`}
@@ -122,13 +122,13 @@ export const Record = ({ data, northSector, units, cf }: Props) => {
         <p>
           Maximum:{" "}
           {maxLessThan4kt
-            ? `< ${(cf.minimumMs * cf[units]).toFixed(0)} ${units}`
+            ? `< ${(cf.minimumMs * cf[units]).toFixed(0)} ${units.slice(0, 4)}`
             : `${((data.RPMMax / cf.rpmToMs) * cf[units]).toFixed(1)} ${units}`}
         </p>
         <p>
           Minimum:{" "}
           {minLessThan4kt
-            ? `< ${(cf.minimumMs * cf[units]).toFixed(0)} ${units}`
+            ? `< ${(cf.minimumMs * cf[units]).toFixed(0)} ${units.slice(0, 4)}`
             : `${((data.RPMMin / cf.rpmToMs) * cf[units]).toFixed(1)} ${units}`}
         </p>
       </ValuesContainer>
