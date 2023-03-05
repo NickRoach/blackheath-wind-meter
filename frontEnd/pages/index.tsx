@@ -35,8 +35,10 @@ const cf = {
 export const Home = () => {
   const [tableData, setTableData] = useState<Observation[]>([]);
   const [dataLoaded, setDataLoaded] = useState(false);
+  const [dataLoading, setDataLoading] = useState(false);
   const [units, setUnits] = useState<string>("");
   const [expanded, setExpanded] = useState<string | false>("0");
+  const checkinterval = 15;
 
   useEffect(() => {
     const savedUnits = localStorage.getItem("units");
@@ -44,22 +46,23 @@ export const Home = () => {
   }, []);
 
   const getData = async () => {
-    if (apiUrl) {
-      await axios.get(apiUrl).then((response) => {
-        if (response.status === 200 || response.statusText === "OK") {
-          setTableData(response.data);
-          setDataLoaded(true);
-        }
-      });
-    } else return [];
-  };
-
-  const checkForRefetch = () => {
     const currentDate = new Date();
-    if ((currentDate.getMinutes() - 1) % 15 === 0) getData();
-  };
+    const delay =
+      (checkinterval -
+        ((currentDate.getMinutes() - 1) % checkinterval) -
+        currentDate.getSeconds() / 60) *
+        60000 +
+      15000;
+    setTimeout(getData, delay);
 
-  setInterval(checkForRefetch, 31000);
+    await axios.get(apiUrl).then((response) => {
+      if (response.status === 200 || response.statusText === "OK") {
+        setTableData(response.data);
+        setDataLoaded(true);
+        setDataLoading(false);
+      } else return [];
+    });
+  };
 
   type Observation = {
     time: string;
@@ -81,7 +84,8 @@ export const Home = () => {
       setExpanded(isExpanded ? panel : false);
     };
 
-  if (!dataLoaded) {
+  if (!dataLoaded && !dataLoading) {
+    setDataLoading(true);
     getData();
   }
 
