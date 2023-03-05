@@ -22,7 +22,7 @@ import windCloudIcon from "../static/wind_cloud_icon.png";
 const apiUrl: string =
   "https://pudmp6ay0h.execute-api.ap-southeast-2.amazonaws.com/blackheath";
 
-const northSector = 12;
+const northSector = 3;
 
 const cf = {
   "rpmToMs": 60,
