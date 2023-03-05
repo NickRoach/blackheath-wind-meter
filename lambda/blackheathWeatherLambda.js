@@ -130,16 +130,20 @@ exports.handler = async (event, context) => {
         body = await getWeatherData();
         break;
       case "POST /blackheath":
-        body = await createWeatherData(
-          JSON.parse(event.body.toString("utf-8"))
-        );
+        if(event.headers.password === process.env.password){
+          body = await createWeatherData(
+            JSON.parse(event.body.toString("utf-8"))
+          );
+        } else {
+          statusCode = 401;
+        }
         break;
       default:
         throw new Error(`Unsupported route: "${event.routeKey}"`);
     }
   } catch (err) {
     statusCode = 400;
-    body = `save function error ${err.message}`;
+    body = `save function error: ${err.message}`;
   } finally {
     body = JSON.stringify(body);
   }

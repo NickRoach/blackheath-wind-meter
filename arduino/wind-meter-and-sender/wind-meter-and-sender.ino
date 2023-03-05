@@ -16,6 +16,7 @@ const char gprsUser[] = "";
 const char gprsPass[] = "";
 const char server[] = "d2fuspthq8wz61.cloudfront.net";
 const char resource[] = "/blackheath";
+const char password[] = "";
 const int  port = 80;
 unsigned long timeout;
 double startTime;
@@ -120,14 +121,14 @@ void loop() {
   
   rtcTime = Rtc.GetDateTime();
     
-  if(rtcTime.Minute() % 5 == 0 && rtcTime.Minute() != minuteLastSent){
+  if(rtcTime.Minute() % 15 == 0 && rtcTime.Minute() != minuteLastSent){
     minuteLastSent = rtcTime.Minute();
     sendData();
     resetVariables();
   }
   
   Serial.flush();
-  LowPower.powerDown(SLEEP_4S, ADC_OFF, BOD_OFF); 
+  LowPower.powerDown(SLEEP_8S, ADC_OFF, BOD_OFF); 
 }
 
 
@@ -165,9 +166,8 @@ void calculateAverageRpm(){
 
 
 void sendData(){
-//  if(voltage < 3.6) return;
+  if(voltage < 3.7) return;
   SerialMon.println("Sending data...");
-  RtcDateTime sendTime = Rtc.GetDateTime();
   digitalWrite(SIM_POWER, HIGH);
   delay(100);
   SerialAT.begin(57600);
@@ -185,7 +185,7 @@ void sendData(){
   }
 
   // just after midnight each day, update the RTC with network time
-  if(rtcTime.Day() != dateTimeLastUpdated){
+  if(rtcTime.Day() != dateTimeLastUpdated || rtcTime.Year() == 2080){
   SerialMon.print("Setting time with network time... ");
   int   year     = 0;
   int   month    = 0;
@@ -195,12 +195,14 @@ void sendData(){
   int   second   = 0;
   float timezone = 0;
   if (modem.getNetworkTime(&year, &month, &day, &hour, &minute, &second, &timezone)) {
-    RtcDateTime gsmTime = RtcDateTime(year, month, day, hour, minute, second);
-    Rtc.SetIsWriteProtected(false);
-    Rtc.SetDateTime(gsmTime);
-    Rtc.SetIsWriteProtected(true);
-    dateTimeLastUpdated = gsmTime.Day();
-    SerialMon.println("done");
+    if(year != 2080){
+      RtcDateTime gsmTime = RtcDateTime(year, month, day, hour, minute, second);
+      Rtc.SetIsWriteProtected(false);
+      Rtc.SetDateTime(gsmTime);
+      Rtc.SetIsWriteProtected(true);
+      dateTimeLastUpdated = gsmTime.Day();
+      SerialMon.println("done");
+      }
     } else {
       SerialMon.println("couldn't get network time, retrying next send cycle");
     }
@@ -225,11 +227,13 @@ void sendData(){
   }
 
   SerialMon.println("Performing HTTP POST...");
-  String httpRequestData = getJsonString(sendTime);
+  String httpRequestData = getJsonString(rtcTime);
   client.print(String("POST ") + resource + " HTTP/1.1\r\n");
   client.print(String("Host: ") + server + "\r\n");
   client.println("Connection: close");
   client.println("Content-Type: application/json");
+  client.print("password: ");
+  client.println(password);
   client.print("Content-Length: ");
   client.println(httpRequestData.length());
   client.println();
@@ -279,8 +283,8 @@ void resetVariables(){
 
 
 String getJsonString(RtcDateTime sendTime){
-  
   String jsonString;
+  
   jsonString += "{\"RPMMax\":";
   jsonString += rpmMax;
   jsonString += ",\"RPMMin\":";
