@@ -106,10 +106,7 @@ export const Home = () => {
             <Heading>Mt Blackheath Wind</Heading>
           </HeadingContainer>
         </Stack>
-        <SubHeading>
-          Still in development. Not installed at Mt Blackheath yet! Contact
-          njlroach@gmail.com
-        </SubHeading>
+        <SubHeading>Contact njlroach@gmail.com</SubHeading>
         <Stack
           direction={"row"}
           spacing={1}
