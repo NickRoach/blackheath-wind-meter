@@ -9,7 +9,7 @@ AWS.config.update({ region: "ap-southeast-2" });
 
 const BUCKET_NAME = "blackheathweatherdata";
 const BUCKET_KEY = "blackheathdata.json";
-const MAX_DATA_LENGTH = 72;
+const MAX_DATA_LENGTH = 24;
 
 exports.handler = async (event, context) => {
   let body;
