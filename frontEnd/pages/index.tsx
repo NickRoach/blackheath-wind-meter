@@ -32,60 +32,74 @@ const cf = {
   "minimumMs": 0.5,
 };
 
+const thing = [
+  {
+    RPMMax: 0,
+    RPMMin: 0,
+    RPMAverage: 0,
+    sectorData: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+    time: "2023/3/6 21:15",
+    voltage: 4.26,
+  },
+];
+
+let window;
+
 export const Home = () => {
   const [tableData, setTableData] = useState<Observation[]>([]);
   const [units, setUnits] = useState<string>("");
   const [expanded, setExpanded] = useState<string | false>("0");
+  const [timeLastFetched, setTimeLastFetched] = useState<Date>();
+  const [getCount, setGetCount] = useState<number>(0);
 
   const getData = useCallback(async () => {
     console.log("got");
+
+    setGetCount(getCount + 1);
+    setTimeLastFetched(new Date());
+
+    setTableData(thing);
     await axios.get(apiUrl).then((response) => {
       if (response.status === 200 || response.statusText === "OK") {
         setTableData(response.data);
       } else return [];
     });
-  }, []);
+  }, [getCount]);
 
   useEffect(() => {
     const savedUnits = localStorage.getItem("units");
     setUnits(savedUnits || "m/s");
 
-    const checkIfNeedFetch = () => {
-      console.log("checking");
-      const lastDataDateString = tableData[0].time.slice(0, 8);
-      const lastDataHours = tableData[0].time.slice(9, 11);
-      const lastDataMinutes = tableData[0].time.slice(12, 15);
-
-      const timeNow = new Date();
-      const nowDateString =
-        timeNow.getFullYear() +
-        "/" +
-        (timeNow.getMonth() + 1) +
-        "/" +
-        timeNow.getDate();
-
-      const dateSame = nowDateString === lastDataDateString;
-      const hourSame =
-        timeNow.getHours().toString().padStart(2, "0") === lastDataHours;
-
-      if (
-        (!dateSame && (timeNow.getHours() > 0 || timeNow.getMinutes() > 0)) ||
-        (!hourSame && timeNow.getMinutes() > 0) ||
-        timeNow.getMinutes() - Number(lastDataMinutes) >= 16
-      ) {
-        getData();
-      }
-    };
-
-    let timer;
-    if (tableData.length > 0) timer = setInterval(checkIfNeedFetch, 10000);
-
+    console.log("useEffect");
     if (tableData.length === 0) {
       getData();
     }
+  }, [getData, tableData, timeLastFetched]);
+
+  useEffect(() => {
+    console.log("timerUse effect called");
+    const timer = setInterval(() => {
+      if (!timeLastFetched) return;
+      const timeNow = new Date();
+      timeNow.setTime(timeNow.getTime() - 60000);
+
+      const timeOfLastPost =
+        timeNow.getMinutes() - (timeNow.getMinutes() % 15) + 1;
+      const timeSinceLastPost =
+        (timeNow.getMinutes() % 15) * 60 + timeNow.getSeconds();
+
+      const timeSinceLastFetch =
+        (timeNow.getTime() - timeLastFetched.getTime()) / 1000 + 60;
+
+      console.log("timeOfLastPost", timeOfLastPost);
+      console.log("timeSinceLastFetch", timeSinceLastFetch);
+      console.log("timeSinceLastPost", timeSinceLastPost);
+
+      if (timeSinceLastFetch > timeSinceLastPost) getData();
+    }, 5000);
 
     return () => clearInterval(timer);
-  }, [getData, tableData]);
+  }, [getData, timeLastFetched]);
 
   type Observation = {
     time: string;
@@ -133,6 +147,7 @@ export const Home = () => {
           </ImageContainer>
           <HeadingContainer>
             <Heading>Mt Blackheath Wind</Heading>
+            <p>getCount {getCount}</p>
           </HeadingContainer>
         </Stack>
         <SubHeading>Contact njlroach@gmail.com</SubHeading>
