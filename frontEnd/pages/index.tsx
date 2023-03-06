@@ -2,7 +2,7 @@ import Head from "next/head";
 import Image from "next/image";
 import styles from "../styles/Home.module.css";
 import axios from "axios";
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Record } from "../components/Record";
 import Accordion from "@mui/material/Accordion";
 import AccordionDetails from "@mui/material/AccordionDetails";
@@ -34,35 +34,58 @@ const cf = {
 
 export const Home = () => {
   const [tableData, setTableData] = useState<Observation[]>([]);
-  const [dataLoaded, setDataLoaded] = useState(false);
-  const [dataLoading, setDataLoading] = useState(false);
   const [units, setUnits] = useState<string>("");
   const [expanded, setExpanded] = useState<string | false>("0");
-  const checkinterval = 15;
+
+  const getData = useCallback(async () => {
+    console.log("got");
+    await axios.get(apiUrl).then((response) => {
+      if (response.status === 200 || response.statusText === "OK") {
+        setTableData(response.data);
+      } else return [];
+    });
+  }, []);
 
   useEffect(() => {
     const savedUnits = localStorage.getItem("units");
     setUnits(savedUnits || "m/s");
-  }, []);
 
-  const getData = async () => {
-    const currentDate = new Date();
-    const delay =
-      (checkinterval -
-        ((currentDate.getMinutes() - 1) % checkinterval) -
-        currentDate.getSeconds() / 60) *
-        60000 +
-      15000;
-    setTimeout(getData, delay);
+    const checkIfNeedFetch = () => {
+      console.log("checking");
+      const lastDataDateString = tableData[0].time.slice(0, 8);
+      const lastDataHours = tableData[0].time.slice(9, 11);
+      const lastDataMinutes = tableData[0].time.slice(12, 15);
 
-    await axios.get(apiUrl).then((response) => {
-      if (response.status === 200 || response.statusText === "OK") {
-        setTableData(response.data);
-        setDataLoaded(true);
-        setDataLoading(false);
-      } else return [];
-    });
-  };
+      const timeNow = new Date();
+      const nowDateString =
+        timeNow.getFullYear() +
+        "/" +
+        (timeNow.getMonth() + 1) +
+        "/" +
+        timeNow.getDate();
+
+      const dateSame = nowDateString === lastDataDateString;
+      const hourSame =
+        timeNow.getHours().toString().padStart(2, "0") === lastDataHours;
+
+      if (
+        (!dateSame && (timeNow.getHours() > 0 || timeNow.getMinutes() > 0)) ||
+        (!hourSame && timeNow.getMinutes() > 0) ||
+        timeNow.getMinutes() - Number(lastDataMinutes) >= 16
+      ) {
+        getData();
+      }
+    };
+
+    let timer;
+    if (tableData.length > 0) timer = setInterval(checkIfNeedFetch, 10000);
+
+    if (tableData.length === 0) {
+      getData();
+    }
+
+    return () => clearInterval(timer);
+  }, [getData, tableData]);
 
   type Observation = {
     time: string;
@@ -83,11 +106,6 @@ export const Home = () => {
     (panel: string) => (event: React.SyntheticEvent, isExpanded: boolean) => {
       setExpanded(isExpanded ? panel : false);
     };
-
-  if (!dataLoaded && !dataLoading) {
-    setDataLoading(true);
-    getData();
-  }
 
   return (
     <div className={styles.container}>
