@@ -37,9 +37,11 @@ export const Home = () => {
   const [units, setUnits] = useState<string>("");
   const [expanded, setExpanded] = useState<string | false>("0");
   const [timeLastFetched, setTimeLastFetched] = useState<Date>();
+  const [dataLoading, setDataLoading] = useState<boolean>(false);
 
   const getData = useCallback(async () => {
     setTimeLastFetched(new Date());
+    setDataLoading(true);
 
     await axios.get(apiUrl).then((response) => {
       if (response.status === 200 || response.statusText === "OK") {
@@ -52,10 +54,10 @@ export const Home = () => {
     const savedUnits = localStorage.getItem("units");
     setUnits(savedUnits || "m/s");
 
-    if (tableData.length === 0) {
+    if (tableData.length === 0 && dataLoading === false) {
       getData();
     }
-  }, [getData, tableData, timeLastFetched]);
+  }, [dataLoading, getData, tableData, timeLastFetched]);
 
   useEffect(() => {
     const timer = setInterval(() => {
