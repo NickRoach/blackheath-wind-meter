@@ -32,17 +32,6 @@ const cf = {
   "minimumMs": 0.5,
 };
 
-const thing = [
-  {
-    RPMMax: 0,
-    RPMMin: 0,
-    RPMAverage: 0,
-    sectorData: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
-    time: "2023/3/6 21:15",
-    voltage: 4.26,
-  },
-];
-
 export const Home = () => {
   const [tableData, setTableData] = useState<Observation[]>([]);
   const [units, setUnits] = useState<string>("");
@@ -52,7 +41,6 @@ export const Home = () => {
   const getData = useCallback(async () => {
     setTimeLastFetched(new Date());
 
-    setTableData(thing);
     await axios.get(apiUrl).then((response) => {
       if (response.status === 200 || response.statusText === "OK") {
         setTableData(response.data);
