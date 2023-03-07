@@ -43,19 +43,13 @@ const thing = [
   },
 ];
 
-let window;
-
 export const Home = () => {
   const [tableData, setTableData] = useState<Observation[]>([]);
   const [units, setUnits] = useState<string>("");
   const [expanded, setExpanded] = useState<string | false>("0");
   const [timeLastFetched, setTimeLastFetched] = useState<Date>();
-  const [getCount, setGetCount] = useState<number>(0);
 
   const getData = useCallback(async () => {
-    console.log("got");
-
-    setGetCount(getCount + 1);
     setTimeLastFetched(new Date());
 
     setTableData(thing);
@@ -64,20 +58,18 @@ export const Home = () => {
         setTableData(response.data);
       } else return [];
     });
-  }, [getCount]);
+  }, []);
 
   useEffect(() => {
     const savedUnits = localStorage.getItem("units");
     setUnits(savedUnits || "m/s");
 
-    console.log("useEffect");
     if (tableData.length === 0) {
       getData();
     }
   }, [getData, tableData, timeLastFetched]);
 
   useEffect(() => {
-    console.log("timerUse effect called");
     const timer = setInterval(() => {
       if (!timeLastFetched) return;
       const timeNow = new Date();
@@ -90,10 +82,6 @@ export const Home = () => {
 
       const timeSinceLastFetch =
         (timeNow.getTime() - timeLastFetched.getTime()) / 1000 + 60;
-
-      console.log("timeOfLastPost", timeOfLastPost);
-      console.log("timeSinceLastFetch", timeSinceLastFetch);
-      console.log("timeSinceLastPost", timeSinceLastPost);
 
       if (timeSinceLastFetch > timeSinceLastPost) getData();
     }, 5000);
@@ -147,7 +135,6 @@ export const Home = () => {
           </ImageContainer>
           <HeadingContainer>
             <Heading>Mt Blackheath Wind</Heading>
-            <p>getCount {getCount}</p>
           </HeadingContainer>
         </Stack>
         <SubHeading>Contact njlroach@gmail.com</SubHeading>
