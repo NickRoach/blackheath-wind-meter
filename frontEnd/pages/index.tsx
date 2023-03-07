@@ -59,11 +59,13 @@ export const Home = () => {
     }
   }, [dataLoading, getData, tableData, timeLastFetched]);
 
+  const delayAfterQuarterHour = 70;
+
   useEffect(() => {
     const timer = setInterval(() => {
       if (!timeLastFetched) return;
       const timeNow = new Date();
-      timeNow.setTime(timeNow.getTime() - 60000);
+      timeNow.setTime(timeNow.getTime() - 1000 * delayAfterQuarterHour);
 
       const timeOfLastPost =
         timeNow.getMinutes() - (timeNow.getMinutes() % 15) + 1;
@@ -71,7 +73,8 @@ export const Home = () => {
         (timeNow.getMinutes() % 15) * 60 + timeNow.getSeconds();
 
       const timeSinceLastFetch =
-        (timeNow.getTime() - timeLastFetched.getTime()) / 1000 + 60;
+        (timeNow.getTime() - timeLastFetched.getTime()) / 1000 +
+        delayAfterQuarterHour;
 
       if (timeSinceLastFetch > timeSinceLastPost) getData();
     }, 5000);
