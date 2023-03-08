@@ -64,11 +64,10 @@ export const Home = () => {
   useEffect(() => {
     const timer = setInterval(() => {
       if (!timeLastFetched) return;
+
       const timeNow = new Date();
       timeNow.setTime(timeNow.getTime() - 1000 * delayAfterQuarterHour);
 
-      const timeOfLastPost =
-        timeNow.getMinutes() - (timeNow.getMinutes() % 15) + 1;
       const timeSinceLastPost =
         (timeNow.getMinutes() % 15) * 60 + timeNow.getSeconds();
 

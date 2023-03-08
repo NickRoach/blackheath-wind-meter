@@ -47,6 +47,7 @@ int voltageSampleCount = 0;
 TinyGsm modem(SerialAT);
 TinyGsmClient client(modem);
 #define SIM_POWER 8
+#define CHARGE_OFF 9
 #define speedPin 2      // black
 #define directionPin A1 // green
 #define voltagePin A2   // black
@@ -66,6 +67,7 @@ void setup() {
   pinMode(directionPin, INPUT_PULLUP);
   pinMode(voltagePin, INPUT);
   pinMode(SIM_POWER, OUTPUT);
+  pinMode(CHARGE_OFF, OUTPUT);
   pinMode(rtcVcc, OUTPUT);
   pinMode(rtcGnd, OUTPUT);
   pinMode(rtcClk, OUTPUT);
@@ -265,6 +267,9 @@ void calculateAverageVoltage() {
   voltageSample = analogRead(voltagePin);
   voltageSample = voltageSample / 1024 * 5; 
   voltage = ((voltage * voltageSampleCount) + voltageSample) / ++voltageSampleCount;
+  // preserve battery by not charging all the way to 4.2 V
+  if(voltage > 4.10) digitalWrite(CHARGE_OFF, LOW);
+  if(voltage < 4.05) digitalWrite(CHARGE_OFF, HIGH);
 }
 
 
