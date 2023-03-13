@@ -17,6 +17,7 @@ export default function App({ Component, pageProps }: AppProps) {
           })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
         `}
       </Script>
+
       {/* Global Site Tag (gtag.js) - Google Analytics */}
       <Script
         strategy="lazyOnload"
@@ -25,13 +26,11 @@ export default function App({ Component, pageProps }: AppProps) {
 
       <Script id="googleTag" strategy="lazyOnload">
         {`
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){dataLayer.push(arguments);}
-        gtag('js', new Date());
-        gtag('config', 'G-7TWCZ8BYTH', {
-          page_path: window.location.pathname,
-        });
-    `}
+          window.dataLayer = window.dataLayer || [];
+          function gtag(){dataLayer.push(arguments);}
+          gtag('js', new Date());
+          gtag('config', 'G-7TWCZ8BYTH');
+        `}
       </Script>
       <Component {...pageProps} />
     </>
