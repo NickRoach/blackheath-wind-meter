@@ -31,8 +31,8 @@ export const Record = ({ data, northSector, units, cf }: Props) => {
     adjustedSectorData.push(lastItem);
   }
   const maxInData = Math.max(...adjustedSectorData);
-  adjustedSectorData = adjustedSectorData.map(
-    (datum) => (100 / maxInData) * datum
+  adjustedSectorData = adjustedSectorData.map((datum) =>
+    ((100 / maxInData) * datum).toFixed(0)
   );
 
   const options = {
@@ -95,7 +95,9 @@ export const Record = ({ data, northSector, units, cf }: Props) => {
       },
       //this is to make a background circle
       {
-        data: [Math.max(...adjustedSectorData)],
+        data: adjustedSectorData.find((x) => x > 0)
+          ? [Math.max(...adjustedSectorData)]
+          : [1],
         backgroundColor: "rgba(150,150,150, 0.2)",
         borderWidth: 0,
       },
