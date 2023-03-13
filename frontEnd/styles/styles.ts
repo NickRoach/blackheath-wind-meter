@@ -65,6 +65,13 @@ export const ReadingHeading = styled.h2`
   width: 150px;
 `;
 
+export const DirectionHeading = styled.h2`
+  font-style: italic;
+  font-weight: light;
+  font-size: 14px;
+  text-align: center;
+`;
+
 export const Container = styled.div`
   margin-right: 30px;
   display: flex;

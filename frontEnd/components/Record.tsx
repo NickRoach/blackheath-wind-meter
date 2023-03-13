@@ -10,6 +10,7 @@ import { PolarArea } from "react-chartjs-2";
 import {
   ChartContainer,
   Container,
+  DirectionHeading,
   ReadingHeading,
   ValuesContainer,
 } from "../styles/styles";
@@ -133,6 +134,7 @@ export const Record = ({ data, northSector, units, cf }: Props) => {
         </p>
       </ValuesContainer>
       <ChartContainer>
+        <DirectionHeading>Direction prevalence:</DirectionHeading>
         <PolarArea options={options} data={radarChartData} />
       </ChartContainer>
     </Container>
