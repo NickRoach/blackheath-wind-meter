@@ -97,8 +97,13 @@ export const Record = ({ data, northSector, units, cf }: Props) => {
       {
         data: adjustedSectorData.find((x) => x > 0)
           ? [Math.max(...adjustedSectorData)]
-          : [1],
+          : [100],
         backgroundColor: "rgba(150,150,150, 0.2)",
+        borderWidth: 0,
+      },
+      {
+        data: [2],
+        backgroundColor: "rgba(000,000,000, 0.7",
         borderWidth: 0,
       },
     ],
