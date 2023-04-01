@@ -31,12 +31,12 @@ RtcDateTime rtcTime;
 float windDirection;
 float rawDirection;
 float directionAngle;
-long rpmSum;
-int rpmMeasurementCount;
-int rpm;
-int rpmMin;
-int rpmMax;
-int rpmAv;
+double rpmSum;
+double rpmMeasurementCount;
+float rpm;
+float rpmMin;
+float rpmMax;
+float rpmAv;
 float sector;
 int sectorNumber;
 int sectorCounter[16];
@@ -138,11 +138,11 @@ void loop() {
 
 void recordPulseTime(){
   if(pulse1 == -1){
-      pulse1 = millis();
+      pulse1 = micros();
     }
   // 20ms time to alleviate switch noise. This limits the maximum measurable wind speed to about 100kt
-  else if (pulse2 == -1 && millis() - pulse1 > 20){
-    pulse2 = millis();
+  else if (pulse2 == -1 && micros() - pulse1 > 200000){
+    pulse2 = micros();
   }
 }
 
@@ -155,7 +155,7 @@ void calculateAverageRpm(){
     // SerialMon.println("timed out");
     }
     else {
-      rpm = 1/(((pulse2 - pulse1)/1000)/60);
+      rpm = 1/(((pulse2 - pulse1)/1000000)/60);
     // SerialMon.println("rpm set");
     }
   if(rpm > rpmMax) rpmMax = rpm;
