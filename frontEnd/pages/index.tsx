@@ -113,7 +113,12 @@ export const Home = () => {
           content="blue mountains, mount blackheath, live, wind, weather, forecast, paragliding, hang gliding"
         />
         <meta property="og:image" content="/static/og_image.png" />
-        <link rel="shortcut icon" href="/static/favicon.ico" />
+        <link rel="icon" sizes="32x32" href="/static/favicon.ico" />
+        <link
+          rel="icon"
+          sizes="192x192"
+          href="/static/home_screen_icon.png"
+        ></link>
         <title>Mt Blackheath Wind</title>
       </Head>
       <main className={styles.main}>
