@@ -129,7 +129,13 @@ export const Home = () => {
             <Heading>Mt Blackheath Wind</Heading>
           </HeadingContainer>
         </Stack>
-        <SubHeading>Contact njlroach@gmail.com</SubHeading>
+        <SubHeading>
+          Now installed at Mt Blackheath. This should be considered a beta test.
+          Wind speed and direction are only roughly calibrated. The maximum wind
+          speed topping out at 7.8 m/s is known bug. Please submit any other
+          issues and feedback using the red speech bubble icon or email
+          njlroach@gmail.com.
+        </SubHeading>
         <Stack
           direction={"row"}
           spacing={1}
