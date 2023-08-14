@@ -19,17 +19,17 @@ const char resource[] = "/blackheath";
 const char password[] = "";
 const int  port = 80;
 unsigned long timeout;
-double startTime;
-double pulse1 = -1;
-double pulse2 = -1;
-double waitTime = millis();
+unsigned long startTime;
+unsigned long pulse1 = -1;
+unsigned long pulse2 = -1;
+unsigned long pulseDelay;
+unsigned long waitTime = millis();
 boolean timedOut = false;
 int timeToWait = 2000;
 int minuteLastSent = -1;
 int dateTimeLastUpdated = -1;
 RtcDateTime rtcTime;
 int rawDirection;
-int pulseDelay;
 float voltage;
 float voltageSample;
 int voltageSampleCount = 0;
@@ -78,6 +78,7 @@ void setup() {
   Rtc.SetIsWriteProtected(true);
   rtcTime = Rtc.GetDateTime();
   minuteLastSent = rtcTime.Minute();
+  resetVariables();
 }
 
 
@@ -110,18 +111,20 @@ void loop() {
 
   checkDirection();
   calculateAverageVoltage();
-  pulseDelay = (pulse2 - pulse1)/2;
-  SerialMon.print("pulse delay: ");
-  if(!timedOut)  SerialMon.println(pulseDelay);
+  pulseDelay = pulse2 - pulse1;
 
   if(timedOut == true) {
-    jsonString += "0,0,";
+    jsonString += "x,y,";
   } else {
+    jsonString += rawDirection;
+    jsonString += ",";
+    jsonString += pulseDelay;
+    jsonString += ",";
   }
   
   rtcTime = Rtc.GetDateTime();
     
-  if(rtcTime.Minute() % 15 == 0 && rtcTime.Minute() != minuteLastSent){
+  if(rtcTime.Minute() % 1 == 0 && rtcTime.Minute() != minuteLastSent){
     minuteLastSent = rtcTime.Minute();
 //    sendData();
     resetVariables();
@@ -136,17 +139,23 @@ void loop() {
 
 void recordPulseTime(){
   if(pulse1 == -1){
-      pulse1 = millis();
+      pulse1 = micros();
     }
   // 20ms time to alleviate switch noise. This limits the maximum measurable wind speed to about 100kt
-  else if (pulse2 == -1 && millis() - pulse1 > 20){
-    pulse2 = millis();
+  else if (pulse2 == -1 && micros() - pulse1 > 200000){
+    pulse2 = micros();
   }
 }
 
 
-//
-//void sendData(){
+
+void sendData(){
+  jsonString.remove(jsonString.length() - 1, 1);
+  jsonString += "]";
+  SerialMon.print("jsonString: ");
+  SerialMon.println(jsonString);
+
+  
 //  if(voltage < 3.7) return;
 //  SerialMon.println("Sending data...");
 //  digitalWrite(SIM_POWER, HIGH);
@@ -224,15 +233,12 @@ void recordPulseTime(){
 //  digitalWrite(SIM_POWER, LOW);
 //  SerialMon.println();
 //  SerialMon.println("Recording wind data...");
-//}
+}
 
 
 
 void checkDirection(){
-  // if the air isn't moving, direction is meaningless
   rawDirection = analogRead(directionPin);
-  SerialMon.print("rawDirection: ");
-  SerialMon.println(rawDirection/2);
 }
 
 
@@ -249,6 +255,6 @@ void calculateAverageVoltage() {
 
 
 void resetVariables(){
-  jsonString = "[";
+  jsonString = "{data:[";
   voltageSampleCount = 0;
 }
