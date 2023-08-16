@@ -15,34 +15,26 @@ const char apn[]  = "live.vodafone.com";
 const char gprsUser[] = "";
 const char gprsPass[] = "";
 const char server[] = "d2fuspthq8wz61.cloudfront.net";
+//const char server[] = "nicksrouter.ddns.net";
 const char resource[] = "/blackheath";
 const char password[] = "";
 const int  port = 80;
 unsigned long timeout;
-double startTime;
-double pulse1 = -1;
-double pulse2 = -1;
-double waitTime = millis();
+unsigned long startTime;
+unsigned long pulse1 = -1;
+unsigned long pulse2 = -1;
+unsigned long pulseDelay;
+unsigned long waitTime = millis();
 boolean timedOut = false;
-int timeToWait = 2000;
 int minuteLastSent = -1;
 int dateTimeLastUpdated = -1;
 RtcDateTime rtcTime;
-float windDirection;
-float rawDirection;
-float directionAngle;
-long rpmSum;
-int rpmMeasurementCount;
-int rpm;
-int rpmMin;
-int rpmMax;
-int rpmAv;
-float sector;
-int sectorNumber;
-int sectorCounter[16];
+int rawDirection;
 float voltage;
 float voltageSample;
 int voltageSampleCount = 0;
+String jsonString;
+String chunk;
 
 TinyGsm modem(SerialAT);
 TinyGsmClient client(modem);
@@ -58,6 +50,8 @@ TinyGsmClient client(modem);
 #define rtcClk 12
 #define rtcDa  13
 #define rtcRst A0
+#define chunkSize 100
+#define timeToWait 2000
 
 ThreeWire myWire(rtcDa,rtcClk,rtcRst); // IO, SCLK, CE
 RtcDS1302<ThreeWire> Rtc(myWire);
@@ -87,6 +81,11 @@ void setup() {
   Rtc.SetIsWriteProtected(true);
   rtcTime = Rtc.GetDateTime();
   minuteLastSent = rtcTime.Minute();
+
+  for(int i = 0; i < 500; i++){
+     jsonString += "x";
+  }
+  resetVariables();
 }
 
 
@@ -117,13 +116,25 @@ void loop() {
   // we don't need to listen to the anemometer anymore. Also, interrupts would wake it up from sleep
   detachInterrupt(digitalPinToInterrupt(speedPin));
 
-  calculateAverageRpm();
   checkDirection();
   calculateAverageVoltage();
+  // the division by 200 is to allow anemometer spin times of up to 2.000 seconds while limiting pulseDelay to four digits
+  pulseDelay = (pulse2 - pulse1)/200;
+
+  if(jsonString.length() < 450){
+    if(timedOut == true) {
+      jsonString += "0,0,";
+    } else {
+      jsonString += rawDirection;
+      jsonString += ",";
+      jsonString += pulseDelay;
+      jsonString += ",";
+    }
+  }
   
   rtcTime = Rtc.GetDateTime();
     
-  if(rtcTime.Minute() % 15 == 0 && rtcTime.Minute() != minuteLastSent){
+  if(rtcTime.Minute() % 10 == 0 && rtcTime.Minute() != minuteLastSent){
     minuteLastSent = rtcTime.Minute();
     sendData();
     resetVariables();
@@ -138,37 +149,20 @@ void loop() {
 
 void recordPulseTime(){
   if(pulse1 == -1){
-      pulse1 = millis();
+      pulse1 = micros();
     }
   // 20ms time to alleviate switch noise. This limits the maximum measurable wind speed to about 100kt
-  else if (pulse2 == -1 && millis() - pulse1 > 20){
-    pulse2 = millis();
+  else if (pulse2 == -1 && micros() - pulse1 > 200000){
+    pulse2 = micros();
   }
 }
 
 
 
-void calculateAverageRpm(){
-// if anemometer isn't spinning, set rpm as 0
-  if(timedOut == true) {
-      rpm = 0;
-    // SerialMon.println("timed out");
-    }
-    else {
-      rpm = 1/(((pulse2 - pulse1)/1000)/60);
-    // SerialMon.println("rpm set");
-    }
-  if(rpm > rpmMax) rpmMax = rpm;
-  if((rpm < rpmMin) || rpmMin == -1) rpmMin = rpm;
-  rpmSum += rpm;
-  rpmMeasurementCount++;
-  rpmAv = rpmSum / rpmMeasurementCount;
-}
-
-
-
 void sendData(){
-  if(voltage < 3.7) return;
+  finishJsonString(rtcTime);
+  
+//  if(voltage < 3.7) return;
   SerialMon.println("Sending data...");
   digitalWrite(SIM_POWER, HIGH);
   delay(100);
@@ -186,8 +180,8 @@ void sendData(){
      SerialMon.println("Network connected");
   }
 
-  // just after midnight each day, update the RTC with network time
-  if(rtcTime.Day() != dateTimeLastUpdated || rtcTime.Year() == 2080){
+  // on initial start and at 3am each day, update the RTC with network time
+  if(dateTimeLastUpdated == -1 || (rtcTime.Day() != dateTimeLastUpdated && rtcTime.Hour() == 3) || rtcTime.Year() == 2080){
   SerialMon.print("Setting time with network time... ");
   int   year     = 0;
   int   month    = 0;
@@ -229,7 +223,6 @@ void sendData(){
   }
 
   SerialMon.println("Performing HTTP POST...");
-  String httpRequestData = getJsonString(rtcTime);
   client.print(String("POST ") + resource + " HTTP/1.1\r\n");
   client.print(String("Host: ") + server + "\r\n");
   client.println("Connection: close");
@@ -237,31 +230,29 @@ void sendData(){
   client.print("password: ");
   client.println(password);
   client.print("Content-Length: ");
-  client.println(httpRequestData.length());
+  client.println(jsonString.length());
+  int stringLength = jsonString.length();
   client.println();
-  client.println(httpRequestData);
+  for(int i = 0; i < stringLength/chunkSize + 1; i++){
+    chunk = jsonString.substring(0, chunkSize);
+    jsonString.remove(0, chunkSize);
+    client.print(chunk);
+  }
+  client.print("Connection: close\r\n\r\n");
+  client.println();
+  
   client.stop();
   SerialMon.println("Done");
   digitalWrite(SIM_POWER, LOW);
   SerialMon.println();
-  SerialMon.println("Recording wind data...");
 }
 
 
 
 void checkDirection(){
-  // if the air isn't moving, direction is meaningless
-  if(rpm == 0) return;
-  rawDirection = analogRead(directionPin);
-  sector = rawDirection + 32;
-  if(sector > 1024){
-    sector = sector - 1024;
-    }
-  sectorNumber = int(sector / 64);
-  sectorCounter[sectorNumber]++;
+  // the division is to make this at most a two digit number to save space
+  rawDirection = analogRead(directionPin) / 10.23;
 }
-
-
 
 void calculateAverageVoltage() {
   voltageSample = analogRead(voltagePin);
@@ -272,40 +263,15 @@ void calculateAverageVoltage() {
   if(voltage < 4.05) digitalWrite(CHARGE_OFF, HIGH);
 }
 
-
-
 void resetVariables(){
-  rpmMin = -1;
-  rpmMax = 0;
-  rpmSum = 0;
-  rpmMeasurementCount = 0;
-  for(int i = 0; i <= 15; i++){
-    sectorCounter[i] = 0;
-  }
+  jsonString = "{\"data\":[";
   voltageSampleCount = 0;
 }
 
-
-
-String getJsonString(RtcDateTime sendTime){
-  String jsonString;
-  
-  jsonString += "{\"RPMMax\":";
-  jsonString += rpmMax;
-  jsonString += ",\"RPMMin\":";
-  jsonString += rpmMin;
-  jsonString += ",\"RPMAverage\":";
-  jsonString += rpmAv;
-  jsonString += ",\"sectorData\":";
-  jsonString += "[";
-  for(int i = 0; i <= 15; i++){
-    jsonString += sectorCounter[i];
-    if(i < 15){
-        jsonString += ",";
-      }
-  };
+String finishJsonString(RtcDateTime sendTime){
+  jsonString.remove(jsonString.length() - 1, 1);
   jsonString += "]";
-  jsonString += ",\"time\":";
+  jsonString += ",\"t\":";
   jsonString += "\"";
   jsonString += sendTime.Year();
   jsonString += "/";
@@ -319,8 +285,10 @@ String getJsonString(RtcDateTime sendTime){
   if(sendTime.Minute() < 10) jsonString += "0";
   jsonString += sendTime.Minute();
   jsonString += "\"";
-  jsonString += ",\"voltage\":";
+  jsonString += ",\"v\":";
   jsonString += voltage;
   jsonString += "}";
+//  SerialMon.print("jsonString: ");
+//  SerialMon.println(jsonString);
   return jsonString;
 }
