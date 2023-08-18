@@ -1,8 +1,31 @@
 body {
   border: 1px solid turquoise;
   text-align: center;
+  margin: 0;
 }
 
 #display {
-  width: 80%;
+  position: relative;
+  /* left: 30px; */
+  border: 1px solid salmon;
+  height: 800px;
+}
+
+.circle {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  background-color: skyblue;
+  border-radius: 50%;
+}
+
+#directionsBox {
+  border: 1px solid red;
+  display: flex;
+  justify-content: space-between;
+}
+
+.direction {
+  /* position: absolute; */
+  font-family: Arial, Helvetica, sans-serif;
 }
