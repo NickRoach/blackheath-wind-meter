@@ -5,14 +5,32 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta
+    name="description"
+    content="Live wind observations from Mt Blackheath, NSW Australia"
+  />
+  <meta
+    name="keywords"
+    content="blue mountains, mount blackheath, live, wind, weather, forecast, paragliding, hang gliding"
+  />
+  <meta property="og:image" content="og_image.png" />
+  <link rel="shortcut icon" href="favicon.ico" />
     
-    <title>Mt Blackheath Wind Gauge</title>
+    <title>Mt Blackheath Wind</title>
 </head>
 <body id="body">
     <div id="widthBox">
-        <div id="titleBox">Mt Blackheath Wind Observations</div>
-        <!-- <canvas id="chart" width="775" height="500"></canvas> -->
-        <div id="percentageBox" class="box" >Still observations: </div>
+        <div id="titleBox">
+            <Image
+              src="wind_cloud_icon.png"
+              alt="wind blowing under a fluffy cloud"
+              width="50px"
+              height="50px"
+              class="image"
+            />
+            <h1>Mt Blackheath Wind</h1>
+        </div>
+        <div id="statsBox" class="box" >Still: Max:</div>
         <div id="timeSelection" class="box">
             <button class="button" id="newer"><</button>
             <div id="timeDisplay"></div>
@@ -23,6 +41,10 @@
             <button class="button" id="kmhButton">km/h</button>
             <button class="button" id="knotsButton">knots</button>
         </div>
+        <div id="modal">
+            <h1>Explanation of data</h1>
+            <p>The gauge is located about 15 m above the ground in a tree behind the Mt Blackheath glider takeoff. It records the wind speed and direction at intervals of approximately ten seconds and reports the data at ten minute intervals. The value "Still" is the percentage of observations in which no air movement was detected. 
+            "Max" refers to the maximum wind speed.</p></div>
     </div>
 </body>
     <script src="script.js"></script>

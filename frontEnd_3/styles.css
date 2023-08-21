@@ -5,15 +5,22 @@ body {
 }
 
 #widthBox {
-  /* border: 1px solid mediumslateblue; */
   margin: auto;
-  max-width: 777px;
+  max-width: 600px;
 }
 
 #titleBox {
-  /* border: 1px solid goldenrod; */
-  height: 50px;
-  line-height: 50px;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+H1 {
+  font-size: 20px;
+}
+
+.image {
+  margin-right: 10px;
 }
 
 #chart {
@@ -34,13 +41,19 @@ body {
 }
 
 #unitSelection {
-  /* border: 1px solid seagreen; */
   height: 25px;
 }
 
-/* #msButton {
+#modal {
   background-color: cornflowerblue;
-} */
+  display: none;
+  position: absolute;
+  top: 10px;
+  width: 100%;
+  max-width: 600px;
+  border-radius: 7px;
+  height: 500px;
+}
 
 .button {
   width: 69px;
@@ -56,6 +69,12 @@ body {
   background-color: #a8c0ed;
 }
 
+.button[disabled]:active {
+  background-color: white;
+}
+
 .box {
   padding: 2px;
+  line-height: 40px;
+  height: 40px;
 }

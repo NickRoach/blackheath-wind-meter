@@ -152,7 +152,7 @@ void recordPulseTime(){
       pulse1 = micros();
     }
   // 20ms time to alleviate switch noise. This limits the maximum measurable wind speed to about 100kt
-  else if (pulse2 == -1 && micros() - pulse1 > 200000){
+  else if (pulse2 == -1 && micros() - pulse1 > 20000){
     pulse2 = micros();
   }
 }
@@ -162,7 +162,7 @@ void recordPulseTime(){
 void sendData(){
   finishJsonString(rtcTime);
   
-//  if(voltage < 3.7) return;
+  if(voltage < 3.7) return;
   SerialMon.println("Sending data...");
   digitalWrite(SIM_POWER, HIGH);
   delay(100);
@@ -251,7 +251,7 @@ void sendData(){
 
 void checkDirection(){
   // the division is to make this at most a two digit number to save space
-  rawDirection = analogRead(directionPin) / 10.23;
+  rawDirection = analogRead(directionPin) / 10.24;
 }
 
 void calculateAverageVoltage() {
@@ -288,7 +288,5 @@ String finishJsonString(RtcDateTime sendTime){
   jsonString += ",\"v\":";
   jsonString += voltage;
   jsonString += "}";
-//  SerialMon.print("jsonString: ");
-//  SerialMon.println(jsonString);
   return jsonString;
 }
