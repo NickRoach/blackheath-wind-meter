@@ -221,7 +221,7 @@ const drawDataPoints = () => {
 
 const drawChart = (statsBox) => {
   // create the chart canvas at the right size
-  document.getElementById('loading').remove()
+  if (document.getElementById('loading')) document.getElementById('loading').remove()
   const chart = document.createElement('canvas')
   chart.id = 'chart'
   chart.height = 350
