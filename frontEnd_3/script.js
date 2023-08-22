@@ -200,7 +200,7 @@ const drawDataPoints = () => {
   for (let x = 0; x < recordPack.data.length; x++) {
     if (recordPack.data[x][1] * selectedUnit.multiplier > topSpeed) topSpeed = (recordPack.data[x][1] * selectedUnit.multiplier).toFixed(1)
     if (recordPack.data[x][1] !== 0) {
-      if (recordPack.data[x][1] <= selectedUnit.max) {
+      if (recordPack.data[x][1] * selectedUnit.multiplier <= selectedUnit.max) {
         ctx.beginPath()
         ctx.fillStyle = circleColor
         ctx.strokeStyle = circleColor
