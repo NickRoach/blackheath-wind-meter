@@ -1,4 +1,4 @@
-const rpmToMs = 50
+const rpmToMs = 40
 const stemDirection = 280
 
 const Units = {
