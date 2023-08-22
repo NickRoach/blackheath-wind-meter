@@ -29,6 +29,15 @@
               class="image"
             />
             <h1>Mt Blackheath Wind</h1>
+            <Image
+                    src="info_icon.svg"
+                    alt="info icon"
+                    width="30px"
+                    height="30px"
+                    class="icon"
+                    id="info"
+                />
+            </span>
         </div>
         <div id="statsBox" class="box" >Still: Max:</div>
         <div id="timeSelection" class="box">
@@ -41,11 +50,23 @@
             <button class="button" id="kmhButton">km/h</button>
             <button class="button" id="knotsButton">knots</button>
         </div>
+        <div id="modalBox">
         <div id="modal">
-            <h1>Explanation of data</h1>
-            <p>The gauge is located about 15 m above the ground in a tree behind the Mt Blackheath glider takeoff. It records the wind speed and direction at intervals of approximately ten seconds and reports the data at ten minute intervals. The value "Still" is the percentage of observations in which no air movement was detected. 
-            "Max" refers to the maximum wind speed.</p></div>
+            <div id="modalHeadingBox">
+                <h1>Explanation of data</h1>
+                <Image
+                    src="close_icon.svg"
+                    alt="close icon"
+                    width="30px"
+                    height="30px"
+                    class="icon"
+                    id="close"
+                />
+            </div>
+            <p>The gauge is located about ten metres above the ground in a tree behind the Mt Blackheath glider takeoff. It records the wind speed and direction at intervals of approximately ten seconds, and reports the data every ten minutes. The value "Still" is the percentage of observations in which no air movement was detected. 
+            Wind speeds in excess of the y-axis range are not plotted, but the percentage of such observations are reported as ">6 m/s, >25km/h, or >12 knots", depending on which unit is selected. "Max" refers to the maximum wind speed.</p></div>
     </div>
+</div>
 </body>
     <script src="script.js"></script>
 </html>

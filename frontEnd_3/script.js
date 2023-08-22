@@ -1,4 +1,5 @@
-const rpmToMs = 75
+// const rpmToMs = 75
+const rpmToMs = 30
 const stemDirection = 280
 
 const Units = {
@@ -36,10 +37,10 @@ const axisTickWidth = 7
 const strokeWidth = 2
 const axisColor = 'gray'
 const circleSize = 2
-const circleColor = 'cornflowerblue'
+const circleColor = '#229CFF'
 const chartBackgroundColor = '#FBFBFB'
 const axisLabelColor = 'black'
-const activeButtonColor = '#A8C0ED'
+const activeButtonColor = '#90CDFF'
 
 const directions = ['N', 'NE', 'E', 'SE', 'S', 'SW', 'W', 'NW', 'N']
 
@@ -229,6 +230,8 @@ const drawChart = (statsBox) => {
 
 let width = window.innerWidth
 const handleResize = () => {
+  const modalBox = document.getElementById('modalBox')
+  modalBox.style.height = `${document.documentElement.scrollHeight}px`
   if (width !== window.innerWidth) {
     width = window.innerWidth
     document.getElementById('chart').remove()
@@ -280,6 +283,14 @@ const initialize = async () => {
       break
     }
   }
+
+  const modalBox = document.getElementById('modalBox')
+  const infoButton = document.getElementById('info')
+  infoButton.addEventListener('click', () => { modalBox.style.display = 'block' })
+  const closeButton = document.getElementById('close')
+  closeButton.addEventListener('click', () => { modalBox.style.display = 'none' })
+
+  modalBox.style.height = `${document.documentElement.scrollHeight}px`
 
   drawDataPoints(data)
 }
