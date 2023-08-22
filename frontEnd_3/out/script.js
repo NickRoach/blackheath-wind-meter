@@ -1,5 +1,4 @@
-// const rpmToMs = 75
-const rpmToMs = 30
+const rpmToMs = 50
 const stemDirection = 280
 
 const Units = {
@@ -213,6 +212,10 @@ const drawDataPoints = () => {
 
   if (stillObs === recordPack.data.length) {
     ctx.fillText('No wind detected', chart.offsetWidth / 2, chart.offsetHeight / 2)
+  }
+
+  if (aboveMax === recordPack.data.length) {
+    ctx.fillText(`All observations >${selectedUnit.max} ${selectedUnit.label}`, chart.offsetWidth / 2, chart.offsetHeight / 2)
   }
 
   document.getElementById('statsBox').textContent = `Still: ${(stillObs / (recordPack.data.length) * 100).toFixed(0)}%, >${selectedUnit.max + ' ' + selectedUnit.label}: ${aboveMax}%, Max: ${topSpeed} ${selectedUnit.label}`
