@@ -30,6 +30,13 @@ H1 {
   margin-right: 10px;
 }
 
+#loading {
+  height: 354px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
 #chart {
   border: 2px solid #dddddd;
   border-radius: 7px;
