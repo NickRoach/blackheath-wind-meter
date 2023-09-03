@@ -113,7 +113,7 @@ exports.handler = async (event, context) => {
     } else {
       const newDataArray = currentData;
       newDataArray.unshift(data);
-      if (newDataArray.length > MAX_DATA_LENGTH) {
+      while (newDataArray.length > MAX_DATA_LENGTH) {
         newDataArray.pop();
       }
       await putObjectToS3(BUCKET_NAME, BUCKET_KEY, newDataArray);
@@ -130,7 +130,7 @@ exports.handler = async (event, context) => {
         body = await getWeatherData();
         break;
       case "POST /blackheath":
-        if(event.headers.password === process.env.password){
+        if (event.headers.password === process.env.password) {
           body = await createWeatherData(
             JSON.parse(event.body.toString("utf-8"))
           );
