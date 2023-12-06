@@ -270,7 +270,7 @@ const initialize = async () => {
   olderButton.addEventListener('click', () => changeSelectedPackage('older', data, olderButton, newerButton))
   newerButton.addEventListener('click', () => changeSelectedPackage('newer', data, olderButton, newerButton))
 
-  const storedUnit = localStorage.getItem('selectedUnit')
+  const storedUnit = localStorage.getItem('selectedUnit') ?? '1'
   switch (storedUnit) {
     case '1' :{
       msButton.style.backgroundColor = activeButtonColor
