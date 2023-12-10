@@ -42,20 +42,52 @@ H1 {
   border-radius: 7px;
 }
 
+#statsBox {
+  height: auto;
+  min-height: 30px;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin: 3px 0 5px 0;
+}
+
+.inlineBox {
+  display: inline;
+  margin-left: 10px;
+  margin-right: 10px;
+}
+
+@media (max-width: 500px) {
+ #still {
+  width: 100%;
+ }
+}
+
+@media (min-width: 501px) {
+  #still {
+   width: 135px;
+  }
+}
+
+#outOfRange {
+  width: 135px;
+}
+
+#maximum {
+  width: 135px;
+}
+
 #timeSelection {
   display: flex;
   justify-content: center;
+  height: auto;
 }
 
 #timeDisplay {
-  margin-left: 20px;
-  margin-right: 20px;
-  line-height: 30px;
-  min-width: 120px;
-}
-
-#unitSelection {
-  height: 25px;
+  padding-left: 10px;
+  padding-right: 10px;
+  margin: auto;
+  color: lightgray;
 }
 
 h1 {
@@ -100,9 +132,12 @@ h1 {
   height: 35px;
   font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
   font-weight: 600;
-  padding-top: 0px;
   border-width: 1px;
   border-radius: 7px;
+  margin-top: auto;
+  margin-bottom: auto;
+  margin-left: 2px;
+  margin-right: 2px;
 }
 
 .button:active {
@@ -114,7 +149,6 @@ h1 {
 }
 
 .box {
-  padding: 2px;
-  line-height: 40px;
-  height: 40px;
+  padding: 5px;
+  line-height: 30px;
 }

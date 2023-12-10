@@ -50,16 +50,20 @@
             </span>
         </div>
         <div id="loading">Loading...</div>
-        <div id="statsBox" class="box" ></div>
+        <div id="statsBox" class="box" >
+            <div id="still" class="inlineBox"></div>
+            <div id="outOfRange" class="inlineBox"></div>
+            <div id="maximum" class="inlineBox"></div>
+        </div>
         <div id="timeSelection" class="box">
-            <button class="button" id="older"><</button>
-            <div id="timeDisplay"></div>
-            <button class="button" id="newer">></button>
+            <button class="button" id="older" disabled><</button>
+            <div id="timeDisplay">8888/88/88 88:88</div>
+            <button class="button" id="newer" disabled>></button>
         </div>
         <div id="unitSelection" class="box">
-            <button class="button" id="msButton">m/s</button>
-            <button class="button" id="kmhButton">km/h</button>
-            <button class="button" id="knotsButton">knots</button>
+            <button class="button" id="msButton" disabled>m/s</button>
+            <button class="button" id="kmhButton" disabled>km/h</button>
+            <button class="button" id="knotsButton" disabled>knots</button>
         </div>
         <div id="modalBox">
         <div id="modal">
