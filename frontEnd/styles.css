@@ -49,13 +49,15 @@ H1 {
   flex-wrap: wrap;
   justify-content: center;
   margin: 3px 0 5px 0;
+  width: 100%
 }
 
 .inlineBox {
   display: inline;
-  width: fit-content;
-  margin-left: 10px;
-  margin-right: 10px;
+  margin-left: 5px;
+  margin-right: 5px;
+  min-width: 160px;
+  width: fit-content
 }
 
 #timeSelection {
@@ -108,7 +110,7 @@ h1 {
   padding-left: 20px;
 }
 
-@media (max-width: 300px) {
+@media (max-width: 325px) {
   .button {
     max-width: 50px;
     height: 25px;
