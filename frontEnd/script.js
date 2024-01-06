@@ -81,6 +81,15 @@ const convertToDirectionAndMs = (record) => {
   return [correctedDirection, ms]
 }
 
+const onDataFetched = () => {
+  const buttons = document.querySelectorAll('button')
+  buttons.forEach(button => {
+    button.disabled = false
+  })
+
+  document.getElementById('timeDisplay').style.color = '#252525';
+}
+
 const getData = async () => {
   const data = await fetchData()
   const binnedData = data.map((input) => getBinnedData(input))
@@ -90,6 +99,7 @@ const getData = async () => {
       data: input.data.map(item => convertToDirectionAndMs(item))
     }
   })
+  onDataFetched()
 
   return convertedData
 }
@@ -217,8 +227,10 @@ const drawDataPoints = () => {
   if (aboveMax === recordPack.data.length) {
     ctx.fillText(`All observations >${selectedUnit.max} ${selectedUnit.label}`, chart.offsetWidth / 2, chart.offsetHeight / 2)
   }
+  document.getElementById('still').textContent = `Still: ${(stillObs / (recordPack.data.length) * 100).toFixed(0)}%           `
+  document.getElementById('outOfRange').textContent = `>${selectedUnit.max + ' ' + selectedUnit.label}: ${aboveMax}%`
+  document.getElementById('maximum').textContent = `Max: ${topSpeed} ${selectedUnit.label}`
 
-  document.getElementById('statsBox').textContent = `Still: ${(stillObs / (recordPack.data.length) * 100).toFixed(0)}%, >${selectedUnit.max + ' ' + selectedUnit.label}: ${aboveMax}%, Max: ${topSpeed} ${selectedUnit.label}`
   document.getElementById('timeDisplay').textContent = `${recordPack.t}`
 }
 
