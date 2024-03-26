@@ -1,12 +1,11 @@
-#define TINY_GSM_MODEM_SIM5360
+#define TINY_GSM_MODEM_SIM7600
 #define SerialMon Serial
 #include <SoftwareSerial.h>
-#include <TinyGsmClient.h>
-#include <LowPower.h>
-#include <ThreeWire.h>  
-#include <RtcDS1302.h>
-
-SoftwareSerial SerialAT(4, 5); // RX, TX
+#include <TinyGsmClient.h>  // TinyGSM by Volodymir Shymanskyy
+#include <LowPower.h>       // Lowpower_LowPowerLab
+#include <ThreeWire.h>      // Rtc by Makuna
+#include <RtcDS1302.h>      // Rtc by Makuna
+SoftwareSerial SerialAT(A2, A1); // RX, TX
 #if !defined(TINY_GSM_RX_BUFFER)
 #define TINY_GSM_RX_BUFFER 650
 #endif
@@ -38,18 +37,26 @@ String chunk;
 
 TinyGsm modem(SerialAT);
 TinyGsmClient client(modem);
-#define SIM_POWER 8
-#define CHARGE_OFF 9
+
+// power control pins
+#define SIM_POWER A3
+#define CHARGE_OFF 12
+#define voltagePin A0
+
+// wind transducer pins
+#define windVcc 4       // yellow  
 #define speedPin 2      // black
-#define directionPin A1 // green
-#define voltagePin A2   // black
-                        // VCC: yellow
-                        // GND: red (yes, red)
-#define rtcVcc 10
-#define rtcGnd 11
-#define rtcClk 12
-#define rtcDa  13
-#define rtcRst A0
+#define directionPin A4 // green
+              // GND:   // red (yes, red)
+
+// RTC pins
+#define rtcVcc 9
+#define rtcGnd 8
+#define rtcClk 7
+#define rtcDa  6
+#define rtcRst 5
+
+// HTTP request constants
 #define chunkSize 100
 #define timeToWait 2000
 
@@ -57,23 +64,29 @@ ThreeWire myWire(rtcDa,rtcClk,rtcRst); // IO, SCLK, CE
 RtcDS1302<ThreeWire> Rtc(myWire);
 
 void setup() {
+  // wind transducer pins
   pinMode(speedPin, INPUT_PULLUP);
   pinMode(directionPin, INPUT_PULLUP);
+  pinMode(windVcc, OUTPUT);
+  digitalWrite(windVcc, HIGH);
+
+  // Power control pins
   pinMode(voltagePin, INPUT);
   pinMode(SIM_POWER, OUTPUT);
   pinMode(CHARGE_OFF, OUTPUT);
+
+  // RTC pins
   pinMode(rtcVcc, OUTPUT);
   pinMode(rtcGnd, OUTPUT);
   pinMode(rtcClk, OUTPUT);
   pinMode(rtcDa, OUTPUT);
   pinMode(rtcRst, OUTPUT);
-
   digitalWrite(rtcVcc, HIGH);
   digitalWrite(rtcGnd, LOW);
 
   SerialMon.begin(4800);
   delay(10);
-  SerialMon.println("Starting...");
+  SerialMon.println("Started");
 
   Rtc.Begin();
   Rtc.SetIsWriteProtected(false);
@@ -90,6 +103,7 @@ void setup() {
 
 
 void loop() {
+  // this must happen before pulse1 and pulse2 are set to -1 because the interrupt function is called when the interrupt is attached
   attachInterrupt(digitalPinToInterrupt(speedPin), recordPulseTime, FALLING);
   pulse1 = -1;
   pulse2 = -1;
@@ -181,7 +195,7 @@ void sendData(){
   }
 
   // on initial start and at 3am each day, update the RTC with network time
-  if(dateTimeLastUpdated == -1 || (rtcTime.Day() != dateTimeLastUpdated && rtcTime.Hour() == 3) || rtcTime.Year() == 2080){
+  if(dateTimeLastUpdated == -1 || (rtcTime.Day() != dateTimeLastUpdated && rtcTime.Hour() == 3)){
   SerialMon.print("Setting time with network time... ");
   int   year     = 0;
   int   month    = 0;
@@ -190,15 +204,14 @@ void sendData(){
   int   minute   = 0;
   int   second   = 0;
   float timezone = 0;
+
   if (modem.getNetworkTime(&year, &month, &day, &hour, &minute, &second, &timezone)) {
-    if(year != 2080){
       RtcDateTime gsmTime = RtcDateTime(year, month, day, hour, minute, second);
       Rtc.SetIsWriteProtected(false);
       Rtc.SetDateTime(gsmTime);
       Rtc.SetIsWriteProtected(true);
       dateTimeLastUpdated = gsmTime.Day();
       SerialMon.println("done");
-      }
     } else {
       SerialMon.println("couldn't get network time, retrying next send cycle");
     }
