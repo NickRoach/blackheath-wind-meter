@@ -227,8 +227,8 @@ const drawDataPoints = () => {
   if (aboveMax === recordPack.data.length) {
     ctx.fillText(`All observations >${selectedUnit.max} ${selectedUnit.label}`, chart.offsetWidth / 2, chart.offsetHeight / 2)
   }
-  document.getElementById('still').textContent = `Still: ${(stillObs / (recordPack.data.length) * 100).toFixed(0)}%           `
-  document.getElementById('outOfRange').textContent = `>${selectedUnit.max + ' ' + selectedUnit.label}: ${aboveMax}%`
+  document.getElementById('still').textContent = `Still: ${(stillObs / (recordPack.data.length) * 100).toFixed(0)}%`
+  document.getElementById('outOfRange').textContent = `>${selectedUnit.max + ' ' + selectedUnit.label}: ${(aboveMax / (recordPack.data.length) * 100).toFixed(0)}%`
   document.getElementById('maximum').textContent = `Max: ${topSpeed} ${selectedUnit.label}`
 
   document.getElementById('timeDisplay').textContent = `${recordPack.t}`
