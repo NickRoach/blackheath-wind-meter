@@ -1,4 +1,6 @@
-import { config, S3 } from "aws-sdk";
+import AWS from "aws-sdk";
+
+const { config, S3 } = AWS;
 
 config.apiVersions = {
   s3: "2006-03-01",
