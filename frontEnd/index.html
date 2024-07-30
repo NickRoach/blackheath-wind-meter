@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <link rel="stylesheet" href="styles.css">
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="Live wind observations from Mt Blackheath, NSW Australia" />
+    <meta name="keywords"
+        content="blue mountains, mount blackheath, live, wind, weather, forecast, paragliding, hang gliding" />
+    <meta property="og:image" content="og_image.png" />
+    <link rel="shortcut icon" href="favicon.ico" />
+    <!-- Hotjar Tracking Code for MtBlackheathWind -->
+    <script>
+        (function (h, o, t, j, a, r) {
+            h.hj = h.hj || function () { (h.hj.q = h.hj.q || []).push(arguments) };
+            h._hjSettings = { hjid: 3627445, hjsv: 6 };
+            a = o.getElementsByTagName('head')[0];
+            r = o.createElement('script'); r.async = 1;
+            r.src = t + h._hjSettings.hjid + j + h._hjSettings.hjsv;
+            a.appendChild(r);
+        })(window, document, 'https://static.hotjar.com/c/hotjar-', '.js?sv=');
+    </script>
+    <title>Mt Blackheath Wind</title>
+</head>
+
+<body id="body">
+    <div id="widthBox">
+        <div id="titleBox">
+            <Image src="wind_cloud_icon.png" alt="wind blowing under a fluffy cloud" width="50px" height="50px"
+                class="image" />
+            <h1>Mt Blackheath Wind</h1>
+            <Image src="info_icon.svg" alt="info icon" width="30px" height="30px" class="icon" id="info" />
+            </span>
+        </div>
+        <div id="loading">Loading...</div>
+        <div id="statsBox" class="box">
+            <div id="still" class="inlineBox"></div>
+            <div id="outOfRange" class="inlineBox"></div>
+            <div id="maximum" class="inlineBox"></div>
+        </div>
+        <div id="timeSelection" class="box">
+            <button class="button" id="older" disabled>&lt;</button>
+            <div id="timeDisplay">8888/88/88 88:88</div>
+            <button class="button" id="newer" disabled>&gt;</button>
+        </div>
+        <div id="unitSelection" class="box">
+            <button class="button" id="msButton" disabled>m/s</button>
+            <button class="button" id="kmhButton" disabled>km/h</button>
+            <button class="button" id="knotsButton" disabled>knots</button>
+        </div>
+        <div id="modalBox">
+            <div id="modal">
+                <div id="modalHeadingBox">
+                    <h1>Explanation of data</h1>
+                    <Image src="close_icon.svg" alt="close icon" width="30px" height="30px" class="icon" id="close" />
+                </div>
+                <p>The gauge is located about ten metres above the ground in a tree behind the Mt Blackheath glider
+                    takeoff. It records the wind speed and direction at intervals of approximately ten seconds, and
+                    reports the data every ten minutes. The data collected in the ten minutes preceding each time stamp
+                    are plotted.</p>
+                <p>The value "Still" is the percentage of observations in which no air movement was detected.
+                    Wind speeds in excess of the y-axis range are not plotted, but the percentage of such observations
+                    are reported as ">6 m/s", ">25km/h", or ">12 knots", depending on which unit is selected. "Max"
+                    refers to the maximum wind speed.</p>
+                <p>The data are not guaranteed to be correct and should not be used in making a decision of whether to
+                    take off or not.</p>
+                <p>Contact njlroach@gmail.com</p>
+            </div>
+        </div>
+    </div>
+</body>
+<script src="script.js"></script>
+
+</html>
