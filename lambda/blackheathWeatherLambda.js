@@ -1,17 +1,17 @@
-const AWS = require("aws-sdk");
+import { config, S3 } from "aws-sdk";
 
-AWS.config.apiVersions = {
+config.apiVersions = {
   s3: "2006-03-01",
   // other service API versions
 };
 // Set the region
-AWS.config.update({ region: "ap-southeast-2" });
+config.update({ region: "ap-southeast-2" });
 
 const BUCKET_NAME = "blackheathweatherdata";
 const BUCKET_KEY = "blackheathdata.json";
 const MAX_DATA_LENGTH = 24;
 
-exports.handler = async (event, context) => {
+export async function handler(event, context) {
   let body;
   let statusCode = 200;
   const headers = {
@@ -19,7 +19,7 @@ exports.handler = async (event, context) => {
   };
 
   const listObjectsInS3 = async (bucketName) => {
-    const s3 = new AWS.S3();
+    const s3 = new S3();
     const params = {
       Bucket: bucketName,
       MaxKeys: 100,
@@ -37,7 +37,7 @@ exports.handler = async (event, context) => {
   };
 
   const getObjectFromS3 = async (bucketName, key) => {
-    const s3 = new AWS.S3();
+    const s3 = new S3();
     const params = {
       Bucket: bucketName,
       Key: key,
@@ -52,7 +52,7 @@ exports.handler = async (event, context) => {
   };
 
   function uploadObjectToS3(bucketName, key, data) {
-    const s3 = new AWS.S3();
+    const s3 = new S3();
     const buf = Buffer.from(JSON.stringify(data));
     const params = {
       Bucket: bucketName,
@@ -70,7 +70,7 @@ exports.handler = async (event, context) => {
   }
 
   const putObjectToS3 = async (bucketName, key, data) => {
-    const s3 = new AWS.S3();
+    const s3 = new S3();
     const params = {
       Bucket: bucketName,
       Key: key,
@@ -153,4 +153,4 @@ exports.handler = async (event, context) => {
     body,
     headers,
   };
-};
+}
