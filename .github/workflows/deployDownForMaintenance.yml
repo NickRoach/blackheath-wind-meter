@@ -1,4 +1,4 @@
-name: CI-maintenance
+name: "Deploy down for maintenance"
 
 on:
   workflow_dispatch:
