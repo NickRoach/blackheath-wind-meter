@@ -1,4 +1,4 @@
-name: CI-prod
+name: "Deploy to prod"
 
 on:
   workflow_dispatch:
@@ -11,7 +11,7 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v1
         with:
-         ref: develop
+          ref: develop
 
       - name: Set up AWS credentials
         uses: aws-actions/configure-aws-credentials@v3
