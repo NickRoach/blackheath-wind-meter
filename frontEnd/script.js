@@ -47,7 +47,7 @@ let speeds = []
 let data
 
 const fetchData = async () => {
-  const response = await fetch('https://pudmp6ay0h.execute-api.ap-southeast-2.amazonaws.com/blackheath')
+  const response = await fetch('https://n0z700qyp7.execute-api.ap-southeast-2.amazonaws.com/blackheathWindMeterStage-dev/blackheath')
   const responseJson = await response.json()
   return await responseJson
 }
