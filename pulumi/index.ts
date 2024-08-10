@@ -44,7 +44,7 @@ const policy = pulumi.all([s3BucketName]).apply(
 );
 
 new aws.iam.RolePolicyAttachment(
-  `${lambdaFunctionName}-logging-policy-attachment`,
+  `${lambdaFunctionName}-policy-attachment`,
   {
     role: role.name,
     policyArn: policy.arn,

@@ -9,7 +9,7 @@ config.apiVersions = {
 // Set the region
 config.update({ region: "ap-southeast-2" });
 
-const BUCKET_NAME = "blackheathweatherdata";
+const BUCKET_NAME = "testblackheathweatherdata";
 const BUCKET_KEY = "blackheathdata.json";
 const MAX_DATA_LENGTH = 24;
 
