@@ -63,6 +63,11 @@ const lambdaFunction = new aws.lambda.Function(lambdaFunctionName, {
 // Define the API Gateway
 const api = new aws.apigatewayv2.Api(`${lambdaFunctionName}-api`, {
   protocolType: "HTTP",
+  corsConfiguration: {
+    allowOrigins: ["*"],
+    allowHeaders: ["*"],
+    allowMethods: ["GET", "POST", "OPTIONS"],
+  },
 });
 
 new aws.lambda.Permission(`${lambdaFunctionName}-invoke-permission`, {
