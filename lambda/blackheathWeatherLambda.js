@@ -14,6 +14,7 @@ const BUCKET_KEY = "blackheathdata.json";
 const MAX_DATA_LENGTH = 24;
 
 export async function handler(event, context) {
+  console.info("Event: ", event);
   let body;
   let statusCode = 200;
   const headers = {

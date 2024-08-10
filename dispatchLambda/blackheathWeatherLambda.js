@@ -98,6 +98,7 @@ export async function handler(event, context) {
 
     try {
       await lambda.invoke(params).promise();
+      console.info("Successfully invoked secondary Lambda");
     } catch (error) {
       console.error("Failed to invoke secondary Lambda:", error);
     }
