@@ -32,9 +32,13 @@ jobs:
         run: pulumi stack select --stack dev
         working-directory: pulumi
 
-      - name: Install dependencies
+      - name: Install pulumi dependencies
         run: npm i
         working-directory: pulumi
+
+      - name: Install lambda dependencies
+        run: npm i
+        working-directory: lambda
 
       - name: Pulumi up
         run: pulumi up --yes
