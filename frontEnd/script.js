@@ -47,10 +47,10 @@ let speeds = []
 let data
 
 const fetchData = async () => {
-  const response = await fetch('https://1q1974stdi.execute-api.ap-southeast-2.amazonaws.com/blackheathWindMeterStage-dev/blackheath')
-  const responseJson = await response.json()
-  return await responseJson
-}
+  const response = await fetch("{{API_ENDPOINT}}");
+  const responseJson = await response.json();
+  return await responseJson;
+};
 
 const getBinnedData = (recordPackage) => {
   const records = []
