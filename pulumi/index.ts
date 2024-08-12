@@ -55,11 +55,6 @@ const lambdaFunction = new aws.lambda.Function(lambdaFunctionName, {
   }),
   handler: "blackheathWeatherLambda.handler",
   role: role.arn,
-  environment: {
-    variables: {
-      password: config.require("password"),
-    },
-  },
 });
 
 // Define the API Gateway

@@ -2,6 +2,4 @@ config:
   aws:region: ap-southeast-2
   blackheathWindMeterIAC:apiGatewayStage: blackheathWindMeterStage-dev
   blackheathWindMeterIAC:lambdaFunctionName: blackheathWindMeterLambda-dev
-  blackheathWindMeterIAC:password:
-    secure: AAABACe3g2rVzRHoALRzzToROgXc31+KdkXpP6GUTjSWSn563p5eSeFBOmIHjg==
   blackheathWindMeterIAC:s3BucketName: testblackheathweatherdata

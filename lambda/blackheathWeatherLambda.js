@@ -119,7 +119,6 @@ const createWeatherData = async (data) => {
 
 export async function handler(event, context) {
   console.log("Event: ", event);
-  console.log("Password: ", process.env.password);
   let body;
   let statusCode = 200;
   const headers = {
@@ -138,16 +137,9 @@ export async function handler(event, context) {
         break;
       case "POST /blackheath":
         console.log("post triggered");
-        if (event.headers.password === process.env.password) {
-          console.log("Password correct");
-          body = await createWeatherData(
-            JSON.parse(event.body.toString("utf-8"))
-          );
-          
-        } else {
-          statusCode = 401;
-          console.error("Password incorrect");
-        }
+        body = await createWeatherData(
+          JSON.parse(event.body.toString("utf-8"))
+        );
         break;
       default:
         throw new Error(`Unsupported route: "${event.routeKey}"`);

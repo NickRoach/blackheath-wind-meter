@@ -102,15 +102,15 @@ export async function handler(event, context) {
     };
 
     try {
+      console.info("Invoking dev lambda");
       await lambda.invoke(devLambdaParams).promise();
-      console.info("Successfully invoked dev lambda");
     } catch (error) {
       console.error("Failed to invoke dev lambda:", error);
     }
 
     try {
+      console.info("Invoking prod lambda");
       await lambda.invoke(prodLambdaParams).promise();
-      console.info("Successfully invoked prod lambda");
     } catch (error) {
       console.error("Failed to invoke prod lambda:", error);
     }
