@@ -101,19 +101,23 @@ export async function handler(event, context) {
       Payload: JSON.stringify(event),
     };
 
+    const result = {};
+
     try {
       console.info("Invoking dev lambda");
-      lambda.invoke(devLambdaParams).promise();
+      result.dev = await lambda.invoke(devLambdaParams).promise();
     } catch (error) {
       console.error("Failed to invoke dev lambda:", error);
     }
 
     try {
       console.info("Invoking prod lambda");
-      lambda.invoke(prodLambdaParams).promise();
+      result.prod = await lambda.invoke(prodLambdaParams).promise();
     } catch (error) {
       console.error("Failed to invoke prod lambda:", error);
     }
+
+    return result;
   };
 
   const getWeatherData = async () => {
@@ -169,7 +173,8 @@ export async function handler(event, context) {
           body = await createWeatherData(
             JSON.parse(event.body.toString("utf-8"))
           );
-          await dispatchToDevProdLambdas();
+          const result = await dispatchToDevProdLambdas();
+          console.log("result: ", result);
         } else {
           statusCode = 401;
         }
