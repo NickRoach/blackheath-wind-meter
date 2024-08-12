@@ -2,3 +2,5 @@ config:
   aws:region: ap-southeast-2
   blackheathWindMeterIAC:apiGatewayStage: blackheathWindMeterStage-prod
   blackheathWindMeterIAC:lambdaFunctionName: blackheathWindMeterLambda-prod
+  blackheathWindMeterIAC:password:
+    secure: AAABAK0/rPQod0EyXNgL+q+g21mPMicPoU+cA68Onl2VNAVminyxxZEAnrW0yA==
