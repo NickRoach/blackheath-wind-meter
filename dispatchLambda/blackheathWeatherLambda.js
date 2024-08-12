@@ -91,13 +91,13 @@ export async function handler(event, context) {
   const dispatchToDevProdLambdas = async () => {
     const devLambdaParams = {
       FunctionName: "blackheathWindMeterLambda-dev-f68f295", // the dev lambda function
-      InvocationType: "Event",
+      InvocationType: "RequestResponse",
       Payload: JSON.stringify(event),
     };
 
     const prodLambdaParams = {
       FunctionName: "blackheathWindMeterLambda-prod-400cd7b", // the prod lambda function
-      InvocationType: "Event",
+      InvocationType: "RequestResponse",
       Payload: JSON.stringify(event),
     };
 
@@ -169,7 +169,7 @@ export async function handler(event, context) {
           body = await createWeatherData(
             JSON.parse(event.body.toString("utf-8"))
           );
-          dispatchToDevProdLambdas();
+          await dispatchToDevProdLambdas();
         } else {
           statusCode = 401;
         }
