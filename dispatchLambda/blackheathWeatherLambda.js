@@ -92,13 +92,13 @@ export async function handler(event, context) {
     const devLambdaParams = {
       FunctionName: "blackheathWindMeterLambda-dev-f68f295", // the dev lambda function
       InvocationType: "Event",
-      Payload: JSON.stringify({ event }),
+      Payload: JSON.stringify(event),
     };
 
     const prodLambdaParams = {
       FunctionName: "blackheathWindMeterLambda-prod-400cd7b", // the prod lambda function
       InvocationType: "Event",
-      Payload: JSON.stringify({ event }),
+      Payload: JSON.stringify(event),
     };
 
     try {

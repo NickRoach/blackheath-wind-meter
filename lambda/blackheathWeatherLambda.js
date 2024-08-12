@@ -143,6 +143,7 @@ export async function handler(event, context) {
           body = await createWeatherData(
             JSON.parse(event.body.toString("utf-8"))
           );
+          
         } else {
           statusCode = 401;
           console.error("Password incorrect");
