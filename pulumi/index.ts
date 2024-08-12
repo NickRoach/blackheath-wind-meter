@@ -55,6 +55,11 @@ const lambdaFunction = new aws.lambda.Function(lambdaFunctionName, {
   }),
   handler: "blackheathWeatherLambda.handler",
   role: role.arn,
+  environment: {
+    variables: {
+      BUCKET_NAME: s3BucketName,
+    },
+  },
 });
 
 // Define the API Gateway
