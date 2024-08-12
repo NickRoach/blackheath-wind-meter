@@ -90,12 +90,6 @@ new aws.apigatewayv2.Route(`${lambdaFunctionName}-get`, {
   target: pulumi.interpolate`integrations/${integration.id}`,
 });
 
-new aws.apigatewayv2.Route(`${lambdaFunctionName}-post`, {
-  apiId: api.id,
-  routeKey: "POST /blackheath",
-  target: pulumi.interpolate`integrations/${integration.id}`,
-});
-
 new aws.apigatewayv2.Route(`${lambdaFunctionName}-getHello`, {
   apiId: api.id,
   routeKey: "GET /hello",
