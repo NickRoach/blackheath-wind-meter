@@ -2,3 +2,4 @@ config:
   aws:region: ap-southeast-2
   blackheathWindMeterIAC:apiGatewayStage: blackheathWindMeterStage-prod
   blackheathWindMeterIAC:lambdaFunctionName: blackheathWindMeterLambda-prod
+  blackheathWindMeterIAC:s3BucketName: prodblackheathweatherdata
