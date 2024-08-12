@@ -20,6 +20,12 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-southeast-2
 
+      - name: Replace API endpoint
+        run: |
+          for file in ./frontEnd/*.js; do
+            sed -i "s|{{API_ENDPOINT}}|${{ vars.DEV_API_ENDPOINT }}|g" "$file"
+          done
+
       - name: Generate file hash and rename
         run: |
           # Find all .js files and generate a hash
