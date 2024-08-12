@@ -1,4 +1,4 @@
-name: "CI dispatch lambda"
+name: "Deploy dispatch lambda"
 
 on:
   workflow_dispatch:

@@ -5,7 +5,6 @@ const { config, S3 } = AWS;
 
 config.apiVersions = {
   s3: "2006-03-01",
-  // other service API versions
 };
 // Set the region
 config.update({ region: "ap-southeast-2" });
@@ -29,7 +28,7 @@ export async function handler(event, context) {
     };
     return s3
       .listObjects(params, function (err, data) {
-        if (err) console.log(err, err.stack); // an error occurred
+        if (err) console.log(err, err.stack);
         else {
           console.log("List");
           console.log(data);
@@ -47,8 +46,8 @@ export async function handler(event, context) {
     };
     return s3
       .getObject(params, function (err, data) {
-        if (err) console.log(err, err.stack); // an error occurred
-        else console.log(data); // successful response
+        if (err) console.log(err, err.stack);
+        else console.log(data);
       })
       .promise()
       .then((data) => JSON.parse(data.Body.toString("utf-8")));
@@ -65,8 +64,8 @@ export async function handler(event, context) {
     };
     return s3
       .upload(params, function (err, data) {
-        if (err) console.log(err, err.stack); // an error occurred
-        else console.log(data); // successful response
+        if (err) console.log(err, err.stack);
+        else console.log(data);
       })
       .promise()
       .then((data) => data);
@@ -82,25 +81,38 @@ export async function handler(event, context) {
     };
     return s3
       .putObject(params, function (err, data) {
-        if (err) console.log(err, err.stack); // an error occurred
-        else return data; // successful response
+        if (err) console.log(err, err.stack);
+        else return data;
       })
       .promise()
       .then((data) => data);
   };
 
   const dispatchToDevProdLambdas = async () => {
-    const params = {
+    const devLambdaParams = {
       FunctionName: "blackheathWindMeterLambda-dev-f68f295", // the dev lambda function
       InvocationType: "Event",
       Payload: JSON.stringify({ event }),
     };
 
+    const prodLambdaParams = {
+      FunctionName: "blackheathWindMeterLambda-prod-400cd7b", // the prod lambda function
+      InvocationType: "Event",
+      Payload: JSON.stringify({ event }),
+    };
+
     try {
-      await lambda.invoke(params).promise();
-      console.info("Successfully invoked secondary Lambda");
+      await lambda.invoke(devLambdaParams).promise();
+      console.info("Successfully invoked dev lambda");
     } catch (error) {
-      console.error("Failed to invoke secondary Lambda:", error);
+      console.error("Failed to invoke dev lambda:", error);
+    }
+
+    try {
+      await lambda.invoke(prodLambdaParams).promise();
+      console.info("Successfully invoked prod lambda");
+    } catch (error) {
+      console.error("Failed to invoke prod lambda:", error);
     }
   };
 
@@ -120,22 +132,27 @@ export async function handler(event, context) {
     if (currentData === "No Data") {
       const newDataArray = [];
       newDataArray.unshift(data);
-      return await uploadObjectToS3(BUCKET_NAME, BUCKET_KEY, newDataArray).then(
-        (response) => {
-          return {
-            data: response,
-            length: response.length,
-          };
-        }
-      );
+      const result = await uploadObjectToS3(
+        BUCKET_NAME,
+        BUCKET_KEY,
+        newDataArray
+      ).then((response) => {
+        return {
+          data: response,
+          length: response.length,
+        };
+      });
+      console.log("Successfully put data to S3");
+      return result;
     } else {
       const newDataArray = currentData;
       newDataArray.unshift(data);
       while (newDataArray.length > MAX_DATA_LENGTH) {
         newDataArray.pop();
       }
-      await putObjectToS3(BUCKET_NAME, BUCKET_KEY, newDataArray);
-      return data;
+      const result = putObjectToS3(BUCKET_NAME, BUCKET_KEY, newDataArray);
+      console.log("Successfully put data to S3");
+      return result;
     }
   };
 

@@ -32,7 +32,7 @@ const policy = pulumi.all([s3BucketName]).apply(
           },
           {
             Effect: "Allow",
-            Action: ["s3:GetObject", "s3:ListBucket"],
+            Action: ["s3:GetObject", "s3:ListBucket", "s3:PutObject"],
             Resource: [
               `arn:aws:s3:::${bucketName}`,
               `arn:aws:s3:::${bucketName}/*`,
@@ -43,13 +43,10 @@ const policy = pulumi.all([s3BucketName]).apply(
     })
 );
 
-new aws.iam.RolePolicyAttachment(
-  `${lambdaFunctionName}-policy-attachment`,
-  {
-    role: role.name,
-    policyArn: policy.arn,
-  }
-);
+new aws.iam.RolePolicyAttachment(`${lambdaFunctionName}-policy-attachment`, {
+  role: role.name,
+  policyArn: policy.arn,
+});
 
 const lambdaFunction = new aws.lambda.Function(lambdaFunctionName, {
   runtime: aws.lambda.Runtime.NodeJS20dX,
@@ -58,6 +55,11 @@ const lambdaFunction = new aws.lambda.Function(lambdaFunctionName, {
   }),
   handler: "blackheathWeatherLambda.handler",
   role: role.arn,
+  environment: {
+    variables: {
+      password: config.require("password"),
+    },
+  },
 });
 
 // Define the API Gateway
