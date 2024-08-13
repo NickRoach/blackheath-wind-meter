@@ -46,7 +46,7 @@ const getObjectFromS3 = async (bucketName, key) => {
     .then((data) => JSON.parse(data.Body.toString("utf-8")));
 };
 
-function uploadObjectToS3(bucketName, key, data) {
+const uploadObjectToS3 = async (bucketName, key, data) => {
   const s3 = new S3();
   const buf = Buffer.from(JSON.stringify(data));
   const params = {
@@ -62,7 +62,7 @@ function uploadObjectToS3(bucketName, key, data) {
     })
     .promise()
     .then((data) => data);
-}
+};
 
 const putObjectToS3 = async (bucketName, key, data) => {
   const s3 = new S3();
