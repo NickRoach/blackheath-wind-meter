@@ -108,7 +108,6 @@ export async function handler(event, context) {
     const prodResult = lambda.invoke(prodLambdaParams).promise();
 
     await Promise.all([devResult, prodResult]);
-    console.log({ dev: devResult, prod: prodResult });
   };
 
   const getWeatherData = async () => {
@@ -164,8 +163,7 @@ export async function handler(event, context) {
           body = await createWeatherData(
             JSON.parse(event.body.toString("utf-8"))
           );
-          const result = await dispatchToDevProdLambdas();
-          console.log(result);
+          await dispatchToDevProdLambdas();
         } else {
           statusCode = 401;
         }
