@@ -9,7 +9,7 @@ config.apiVersions = {
 // Set the region
 config.update({ region: "ap-southeast-2" });
 
-const dispatchToDevProdLambdas = async () => {
+const dispatchToDevProdLambdas = async (event) => {
   const devLambdaParams = {
     FunctionName: "blackheathWindMeterLambda-dev-f68f295", // the dev lambda function
     InvocationType: "Event",
@@ -39,7 +39,7 @@ export async function handler(event, context) {
   };
 
   if (event.headers.password === process.env.password) {
-    await dispatchToDevProdLambdas();
+    await dispatchToDevProdLambdas(event);
   } else {
     statusCode = 401;
   }
