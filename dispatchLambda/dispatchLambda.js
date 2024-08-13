@@ -9,9 +9,27 @@ config.apiVersions = {
 // Set the region
 config.update({ region: "ap-southeast-2" });
 
-const BUCKET_NAME = "blackheathweatherdata";
-const BUCKET_KEY = "blackheathdata.json";
-const MAX_DATA_LENGTH = 24;
+const dispatchToDevProdLambdas = async () => {
+  const devLambdaParams = {
+    FunctionName: "blackheathWindMeterLambda-dev-f68f295", // the dev lambda function
+    InvocationType: "Event",
+    Payload: JSON.stringify(event),
+  };
+
+  const prodLambdaParams = {
+    FunctionName: "blackheathWindMeterLambda-prod-400cd7b", // the prod lambda function
+    InvocationType: "Event",
+    Payload: JSON.stringify(event),
+  };
+
+  console.info("Invoking dev lambda");
+  const devResult = lambda.invoke(devLambdaParams).promise();
+
+  console.info("Invoking prod lambda");
+  const prodResult = lambda.invoke(prodLambdaParams).promise();
+
+  await Promise.all([devResult, prodResult]);
+};
 
 export async function handler(event, context) {
   let body;
@@ -20,162 +38,10 @@ export async function handler(event, context) {
     "Content-Type": "application/json",
   };
 
-  const listObjectsInS3 = async (bucketName) => {
-    const s3 = new S3();
-    const params = {
-      Bucket: bucketName,
-      MaxKeys: 100,
-    };
-    return s3
-      .listObjects(params, function (err, data) {
-        if (err) console.log(err, err.stack);
-        else {
-          console.log("List");
-          console.log(data);
-        } // successful response
-      })
-      .promise()
-      .then((data) => data.Contents);
-  };
-
-  const getObjectFromS3 = async (bucketName, key) => {
-    const s3 = new S3();
-    const params = {
-      Bucket: bucketName,
-      Key: key,
-    };
-    return s3
-      .getObject(params, function (err, data) {
-        if (err) console.log(err, err.stack);
-        else console.log(data);
-      })
-      .promise()
-      .then((data) => JSON.parse(data.Body.toString("utf-8")));
-  };
-
-  function uploadObjectToS3(bucketName, key, data) {
-    const s3 = new S3();
-    const buf = Buffer.from(JSON.stringify(data));
-    const params = {
-      Bucket: bucketName,
-      Key: key,
-      Body: buf,
-      ContentType: "application/json",
-    };
-    return s3
-      .upload(params, function (err, data) {
-        if (err) console.log(err, err.stack);
-        else console.log(data);
-      })
-      .promise()
-      .then((data) => data);
-  }
-
-  const putObjectToS3 = async (bucketName, key, data) => {
-    const s3 = new S3();
-    const params = {
-      Bucket: bucketName,
-      Key: key,
-      Body: JSON.stringify(data),
-      ContentType: "application/json",
-    };
-    return s3
-      .putObject(params, function (err, data) {
-        if (err) console.log(err, err.stack);
-        else return data;
-      })
-      .promise()
-      .then((data) => data);
-  };
-
-  const dispatchToDevProdLambdas = async () => {
-    const devLambdaParams = {
-      FunctionName: "blackheathWindMeterLambda-dev-f68f295", // the dev lambda function
-      InvocationType: "Event",
-      Payload: JSON.stringify(event),
-    };
-
-    const prodLambdaParams = {
-      FunctionName: "blackheathWindMeterLambda-prod-400cd7b", // the prod lambda function
-      InvocationType: "Event",
-      Payload: JSON.stringify(event),
-    };
-
-    console.info("Invoking dev lambda");
-    const devResult = lambda.invoke(devLambdaParams).promise();
-
-    console.info("Invoking prod lambda");
-    const prodResult = lambda.invoke(prodLambdaParams).promise();
-
-    await Promise.all([devResult, prodResult]);
-  };
-
-  const getWeatherData = async () => {
-    console.log("Get Weather Data");
-    const list = await listObjectsInS3(BUCKET_NAME);
-    const found = list.find((item) => item.Key === BUCKET_KEY);
-    if (found) {
-      return await getObjectFromS3(BUCKET_NAME, BUCKET_KEY);
-    } else {
-      return [];
-    }
-  };
-
-  const createWeatherData = async (data) => {
-    const currentData = await getWeatherData();
-    if (currentData === "No Data") {
-      const newDataArray = [];
-      newDataArray.unshift(data);
-      const result = await uploadObjectToS3(
-        BUCKET_NAME,
-        BUCKET_KEY,
-        newDataArray
-      ).then((response) => {
-        return {
-          data: response,
-          length: response.length,
-        };
-      });
-      console.log("Successfully put data to S3");
-      return result;
-    } else {
-      const newDataArray = currentData;
-      newDataArray.unshift(data);
-      while (newDataArray.length > MAX_DATA_LENGTH) {
-        newDataArray.pop();
-      }
-      const result = putObjectToS3(BUCKET_NAME, BUCKET_KEY, newDataArray);
-      console.log("Successfully put data to S3");
-      return result;
-    }
-  };
-
-  try {
-    switch (event.routeKey) {
-      case "GET /hello":
-        body = "Herro!";
-        break;
-      case "GET /blackheath":
-        body = await getWeatherData();
-        break;
-      case "POST /blackheath":
-        if (event.headers.password === process.env.password) {
-          body = await createWeatherData(
-            JSON.parse(event.body.toString("utf-8"))
-          );
-          await dispatchToDevProdLambdas();
-        } else {
-          statusCode = 401;
-        }
-        break;
-      default:
-        throw new Error(`Unsupported route: "${event.routeKey}"`);
-    }
-  } catch (err) {
-    statusCode = 400;
-    body = `save function error: ${err.message}`;
-  } finally {
-    body = JSON.stringify(body);
+  if (event.headers.password === process.env.password) {
+    await dispatchToDevProdLambdas();
+  } else {
+    statusCode = 401;
   }
 
   return {
