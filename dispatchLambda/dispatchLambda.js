@@ -88,7 +88,7 @@ export async function handler(event, context) {
       .then((data) => data);
   };
 
-  const dispatchToDevProdLambdas = () => {
+  const dispatchToDevProdLambdas = async () => {
     const devLambdaParams = {
       FunctionName: "blackheathWindMeterLambda-dev-f68f295", // the dev lambda function
       InvocationType: "Event",
@@ -101,19 +101,14 @@ export async function handler(event, context) {
       Payload: JSON.stringify(event),
     };
 
-    try {
-      console.info("Invoking dev lambda");
-      lambda.invoke(devLambdaParams).promise();
-    } catch (error) {
-      console.error("Failed to invoke dev lambda:", error);
-    }
+    console.info("Invoking dev lambda");
+    const devResult = lambda.invoke(devLambdaParams).promise();
 
-    try {
-      console.info("Invoking prod lambda");
-      lambda.invoke(prodLambdaParams).promise();
-    } catch (error) {
-      console.error("Failed to invoke prod lambda:", error);
-    }
+    console.info("Invoking prod lambda");
+    const prodResult = lambda.invoke(prodLambdaParams).promise();
+
+    await Promise.all([devResult, prodResult]);
+    console.log({ dev: devResult, prod: prodResult });
   };
 
   const getWeatherData = async () => {
