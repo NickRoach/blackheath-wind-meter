@@ -164,7 +164,8 @@ export async function handler(event, context) {
           body = await createWeatherData(
             JSON.parse(event.body.toString("utf-8"))
           );
-          dispatchToDevProdLambdas();
+          const result = await dispatchToDevProdLambdas();
+          console.log(result);
         } else {
           statusCode = 401;
         }
