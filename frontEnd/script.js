@@ -1,5 +1,5 @@
 const rpmToMs = 40
-const stemDirection = 280
+const stemDirection = 272
 
 const Units = {
   ms: {
@@ -284,7 +284,7 @@ const initialize = async () => {
 
   const storedUnit = localStorage.getItem('selectedUnit') ?? '1'
   switch (storedUnit) {
-    case '1' :{
+    case '1': {
       msButton.style.backgroundColor = activeButtonColor
       break
     }
