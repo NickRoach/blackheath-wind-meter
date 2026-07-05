@@ -8,7 +8,7 @@
     "dependencies": {
         "@pulumi/aws": "^6.48.0",
         "@pulumi/awsx": "^2.14.0",
-        "@pulumi/pulumi": "^3.128.0",
+        "@pulumi/pulumi": "^3.250.0",
         "dotenv": "^16.4.5"
     }
 }
